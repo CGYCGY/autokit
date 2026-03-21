@@ -71,7 +71,7 @@ Create and manage Cloudflare DNS records for project domains.
 
 ## Variables
 
-SKILL_TOOLS: <absolute-path-to-this-skill>/tools
+SKILL_TOOLS: ${CLAUDE_SKILL_DIR}/tools
 CONFIG_FILE: deploy/.env.deploy
 
 ## Instructions

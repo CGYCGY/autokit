@@ -2,7 +2,7 @@
 name: gen-skill
 description: Creates, generates, and updates Claude Code skills from user ideas. Use when user asks to "create skill", "generate skill", "update skill", "modify skill", "new skill", or describes a skill idea.
 argument-hint: [--file | --simple | --output] <skill idea or update description>
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 context: fork
 user-invocable: true
 ---
@@ -91,20 +91,14 @@ Create only when needed:
 3. For updates: read existing `.claude/skills/<skill-name>/SKILL.md`
 4. If idea is vague, ask user to clarify: purpose, triggers, inputs/outputs
 
-### Phase 2: Fetch Documentation
+### Phase 2: Load References
 
-1. **Read** `claude-docs.md` for official documentation URLs
-2. **Fetch** the Skills documentation page for current spec
-3. **Fetch** the Skills Best Practices page for current guidelines
-4. If fetch fails, proceed with local references only
+1. **Read** `reference.md` for available frontmatter fields and string substitutions
+2. **Read** `best-practices.md` for skill-specific conventions
+3. **Read** `templates.md` for structure templates
+4. **Read** `examples.md` for reference patterns
 
-### Phase 3: Load Best Practices
-
-1. **Read** `best-practices.md` for skill-specific conventions
-2. **Read** `validation-checklist.md` for validation criteria
-3. **Read** `examples.md` for reference patterns
-
-### Phase 4: Weigh Sections
+### Phase 3: Weigh Sections
 
 Based on the user's idea, determine which sections to include:
 
@@ -115,15 +109,15 @@ Based on the user's idea, determine which sections to include:
 5. Determine if supporting directories are needed
 6. Estimate line count; plan supporting files if > 500 lines
 
-### Phase 5: Generate Skill
+### Phase 4: Generate Skill
 
-1. Compose YAML frontmatter (name, description, argument-hint, and relevant optional fields)
+1. Compose YAML frontmatter (name, description, and relevant optional fields from `reference.md`)
 2. Write Purpose section (one-liner)
-3. Write included sections based on Phase 4 weighing
+3. Write included sections based on Phase 3 weighing
 4. Create supporting files if needed
 5. Apply output mode (`--file`, `--simple`, or `--output`)
 
-### Phase 6: Validate
+### Phase 5: Validate
 
 1. Run through `validation-checklist.md` checks
 2. Verify YAML frontmatter format
@@ -160,11 +154,12 @@ Based on the user's idea, determine which sections to include:
 
 ## Supporting Files
 
+- `reference.md` - All frontmatter fields and string substitutions available for skills
 - `best-practices.md` - Skill authoring conventions and rules
 - `validation-checklist.md` - Pre and post-generation validation
 - `examples.md` - Example skill generations for reference
 - `templates.md` - Skill structure templates (minimal, standard, full)
-- `claude-docs.md` - Official documentation URLs for fetching
+- `claude-docs.md` - Official documentation URLs (for updating gen-skill itself, not used during generation)
 
 ## Report
 
@@ -177,6 +172,5 @@ Based on the user's idea, determine which sections to include:
 
 1. **Context Efficiency**: Every line in generated SKILL.md must be actionable or provide decision-making value
 2. **Progressive Loading**: Keep SKILL.md small, reference supporting files for detailed content
-3. **Documentation First**: Fetch official docs before generating to stay current
-4. **One Skill = One Capability**: Each generated skill should do one thing well
-5. **Anti-patterns Only Non-obvious**: Do not list obvious opposites of good practices
+3. **One Skill = One Capability**: Each generated skill should do one thing well
+4. **Anti-patterns Only Non-obvious**: Do not list obvious opposites of good practices

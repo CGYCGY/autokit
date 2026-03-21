@@ -2,8 +2,8 @@
 
 ## Pre-Creation Checks
 
-- [ ] Official docs fetched from `claude-docs.md` URLs (or fetch failed gracefully)
 - [ ] `best-practices.md` read and understood
+- [ ] `reference.md` reviewed for available frontmatter fields and substitutions
 - [ ] `examples.md` reviewed for reference patterns
 - [ ] Skill idea is clear enough to proceed (asked user for clarification if vague)
 - [ ] Operation type confirmed: create or update
@@ -21,9 +21,7 @@
 - [ ] Closes with `---` on its own line
 - [ ] No tabs used (spaces only)
 - [ ] Consistent indentation (2 spaces for nested values)
-- [ ] `name` field present
 - [ ] `description` field present
-- [ ] Version number is quoted if present: `version: "1.0.0"`
 - [ ] No trailing spaces after values
 - [ ] Boolean values are lowercase: `true` / `false`
 
@@ -58,25 +56,25 @@
 - [ ] Omitted for simple, quick skills (uses default shared context)
 
 ### agent
-- [ ] `Plan` for multi-step planning and execution
-- [ ] `general-purpose` for straightforward tasks
-- [ ] Omitted if default agent is appropriate
+- [ ] Only set when `context: fork` is present
+- [ ] `Plan` only for read-only skills (no Write/Edit)
+- [ ] `general-purpose` or omitted for skills that write files
+
+### effort
+- [ ] Valid value: `low`, `medium`, `high`, or `max`
+- [ ] `max` only with Opus 4.6
 
 ### user-invocable
-- [ ] Set to `true` if user should trigger via `/skill-name`
-- [ ] Set to `false` or omitted if only invoked by other skills/agents
+- [ ] `true` if user should trigger via `/skill-name`
+- [ ] `false` if only invoked by other skills/agents
 
 ### disable-model-invocation
-- [ ] Set to `true` only if skill should never auto-trigger
+- [ ] `true` only for skills with side effects user should control (deploy, commit, send)
 - [ ] `false` or omitted for normal skills
-
-### version
-- [ ] Quoted string: `"1.0.0"`
-- [ ] Follows semantic versioning
 
 ### hooks
 - [ ] Hook commands are valid and tested
-- [ ] Hook triggers are appropriate (pre/post)
+- [ ] Hook triggers are appropriate (`PreToolUse`, `PostToolUse`, `Stop`)
 
 ## File Location Validation
 
@@ -94,10 +92,10 @@
 - [ ] Describes what the skill does, not how
 
 ### Variables (if present)
-- [ ] Each variable has a clear description
-- [ ] Default values documented where applicable
-- [ ] Uses `--flag` notation for CLI-style variables
+- [ ] Internal variables use `${CLAUDE_SKILL_DIR}` for skill-relative paths
+- [ ] Flags listed under a `### Flags` subsection (if applicable)
 - [ ] Variables are actually used in workflow/instructions
+- [ ] Most skills don't need flags — only present when skill parses arguments
 
 ### Instructions (if present)
 - [ ] Each instruction is actionable (a rule, not an explanation)
@@ -116,6 +114,10 @@
 - [ ] THEN actions are specific and actionable
 - [ ] EXAMPLES are natural user phrases
 - [ ] Route names are descriptive
+
+### Report (if present)
+- [ ] Defines what to show user after execution
+- [ ] Consistent output format
 
 ### Supporting Files
 - [ ] All referenced files actually exist
@@ -152,3 +154,4 @@ Stop and fix if any of these are true:
 - Tabs used anywhere in YAML frontmatter
 - Supporting files referenced but not created
 - Empty directories exist in the skill folder
+- `agent: Plan` used but skill writes files

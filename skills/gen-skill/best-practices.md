@@ -7,30 +7,24 @@
 - Use spaces, never tabs
 - Consistent 2-space indentation for nested values
 - String values with special characters must be quoted
-- Version numbers must be quoted: `version: "1.0.0"`
+- Boolean values are lowercase: `true` / `false`
 
-### Required Fields
-- `name`: Skill identifier (see naming rules below)
+### Recommended Fields
 - `description`: What it does + when to use it (see description rules below)
 
-### Optional Fields
+### Common Optional Fields
+- **`name`**: Skill identifier. If omitted, uses directory name
+- **`argument-hint`**: Hint for expected input. Use `<required>` and `[optional]` notation
+- **`allowed-tools`**: Comma-separated list of tools. Omit to allow all tools
+- **`model`**: Model preference (`sonnet`, `opus`, `haiku`). Omit to inherit
+- **`effort`**: Effort level override (`low`, `medium`, `high`, `max`). Omit to inherit from session
+- **`context`**: Set to `fork` for isolated subagent execution
+- **`agent`**: Subagent type when `context: fork` is set. Built-in: `Explore`, `Plan`, `general-purpose`, or custom agent name. Note: `Plan` is read-only
+- **`user-invocable`**: `true` (default) to show in `/` menu. `false` to hide
+- **`disable-model-invocation`**: `true` to prevent auto-invocation. Default: `false`
+- **`hooks`**: Lifecycle hooks scoped to skill (`PreToolUse`, `PostToolUse`, `Stop`)
 
-- **`argument-hint`**: Hint shown to users for expected input. Use `<required>` and `[optional]` notation
-- **`allowed-tools`**: Comma-separated list of tools the skill may use. Omit to allow all tools
-- **`model`**: Model preference (`sonnet`, `opus`, `haiku`). Omit to use default
-- **`context`**: How context is managed
-  - `fork`: Isolated context, skill runs in its own thread (recommended for complex skills)
-  - Omit for default shared context
-- **`agent`**: Agent type for execution
-  - `Plan`: For multi-step planning and execution
-  - `general-purpose`: For straightforward tasks
-  - Omit for default agent
-- **`user-invocable`**: `true` if user can trigger directly via `/skill-name`. Default: `false`
-- **`disable-model-invocation`**: `true` to prevent model from auto-invoking. Default: `false`
-- **`version`**: Semantic version string, quoted: `"1.0.0"`
-- **`mode`**: Execution mode if applicable
-- **`license`**: License identifier if distributing
-- **`hooks`**: Pre/post execution hooks (advanced)
+See `reference.md` for full field details, types, and defaults.
 
 ## Naming Conventions
 
@@ -89,9 +83,10 @@ SKILL.md is consumed by an AI agent, not read by humans. Every line must earn it
 
 ### Optional Sections (Weigh Before Including)
 
-- **Variables**: When the skill has configurable options, flags, toggles, settings
-  - List each variable with format: `- \`--flag\`: description`
-  - Include defaults where applicable
+- **Variables**: When the skill has configurable options, paths, flags, or settings
+  - Internal variables: `SKILL_TOOLS: ${CLAUDE_SKILL_DIR}/tools`
+  - User input: `USER_INPUT: $ARGUMENTS` with flags subsection
+  - Most skills don't need flags — only add when the skill parses arguments
 
 - **Instructions**: When the skill has rules, constraints, conditions, decision logic
   - Use subsections for grouping related rules
@@ -106,9 +101,13 @@ SKILL.md is consumed by an AI agent, not read by humans. Every line must earn it
   - Fixed format per route (see below)
   - Routes are pattern-matched by the agent at runtime
 
+- **Report**: When the skill should produce a summary after execution
+  - What to show the user when done
+  - Keeps output consistent across invocations
+
 ### Section Order
 ```
-Purpose > Variables > Instructions > Workflow > Cookbook > Supporting Files
+Purpose > Variables > Instructions > Workflow > Cookbook > Supporting Files > Report
 ```
 
 ## Subsection Rules
@@ -186,4 +185,4 @@ Create only when content justifies a separate file:
 - **Over-specifying allowed-tools**: Restricting tools too tightly causes skill failures. Only restrict when security matters.
 - **Putting trigger terms in the body**: The `description` field handles activation. Body instructions are for execution.
 - **Creating skills that duplicate built-in commands**: Check if Claude Code already handles it natively.
-- **Version field without quotes**: YAML interprets `1.0` as a float. Always quote: `"1.0.0"`.
+- **Using `agent: Plan` when skill writes files**: Plan agent is read-only. Use `general-purpose` or omit.

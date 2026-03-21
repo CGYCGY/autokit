@@ -34,7 +34,7 @@ One-liner description.
 
 ## Variables
 
-SOME_PATH: <absolute-path-to-this-skill>/tools
+SOME_PATH: ${CLAUDE_SKILL_DIR}/tools
 CONFIG_FILE: path/to/config
 
 ## Instructions
