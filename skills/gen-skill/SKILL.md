@@ -1,13 +1,10 @@
 ---
 name: gen-skill
 description: Creates, generates, and updates Claude Code skills from user ideas. Use when user asks to "create skill", "generate skill", "update skill", "modify skill", "new skill", or describes a skill idea.
-argument-hint: <skill idea or update description> [--file | --simple | --output]
+argument-hint: [--file | --simple | --output] <skill idea or update description>
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch
 context: fork
-agent: Plan
 user-invocable: true
-disable-model-invocation: false
-version: "1.0.0"
 ---
 
 # Skill Generator
@@ -18,10 +15,12 @@ Generate or update Claude Code skills from user ideas, producing well-structured
 
 ## Variables
 
-- `--file`: (default) Save generated skill to `.claude/skills/<skill-name>/SKILL.md`
-- `--simple`: Generate a single SKILL.md with no subdirectories
-- `--output`: Display generated skill content without saving files
-- `--update`: Explicitly flag an update operation (auto-detected if skill exists)
+USER_INPUT: $ARGUMENTS
+
+### Flags
+- `--file` or `-f`: (default) Save to `.claude/skills/<skill-name>/SKILL.md` with supporting dirs
+- `--simple` or `-s`: Single SKILL.md only, no subdirectories
+- `--output` or `-o`: Display generated content without saving files
 
 ## Instructions
 
@@ -30,12 +29,6 @@ Generate or update Claude Code skills from user ideas, producing well-structured
 - **Create**: No existing skill with that name in `.claude/skills/`
 - **Update**: Existing skill found, or user says "update", "modify", "change", "fix"
 - For updates: read existing SKILL.md first, apply only requested changes, preserve unchanged sections
-
-### Output Mode Rules
-
-- `--file` (default): Create `.claude/skills/<skill-name>/SKILL.md` plus any supporting dirs
-- `--simple`: Create `.claude/skills/<skill-name>/SKILL.md` only, inline everything, no subdirs
-- `--output`: Print the generated content to chat, do not write files
 
 ### Size Constraint
 
@@ -171,6 +164,13 @@ Based on the user's idea, determine which sections to include:
 - `validation-checklist.md` - Pre and post-generation validation
 - `examples.md` - Example skill generations for reference
 - `claude-docs.md` - Official documentation URLs for fetching
+
+## Report
+
+- Show created file structure (tree format)
+- Confirm file location
+- Summarize which sections were included and why
+- Suggest testing: "Try invoking with: `/skill-name <test input>`"
 
 ## Key Principles
 
