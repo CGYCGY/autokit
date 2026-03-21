@@ -217,29 +217,23 @@ USER_INPUT: $ARGUMENTS
 **Process:**
 
 1. Read existing `.claude/skills/json-formatter/SKILL.md`
-2. Identify changes: description update, instructions update, workflow update
-3. Preserve existing content, modify relevant sections
+2. Identify what needs to change based on the request
+3. Apply only the requested changes, preserve everything else
 
-**Changes applied:**
+**What changes and what doesn't:**
 
-```markdown
-## description (updated)
-Formats JSON and YAML files with consistent indentation and sorting. Use when user asks to
-"format json", "prettify json", "format yaml", "fix formatting", or "indent json".
+- **Frontmatter `description`**: Update to include "YAML" and new trigger terms ("format yaml")
+- **Instructions**: Add `.yaml`/`.yml` to file extension detection, update comment preservation rule
+- **Workflow**: No change — the steps are generic enough to handle both formats
+- **Purpose**: May update if the one-liner no longer covers the expanded scope
+- **Everything else**: Untouched
 
-## Instructions (updated)
-- Detect files by extension (`.json`, `.jsonc`, `.yaml`, `.yml`)       # CHANGED
-- Preserve comments in `.jsonc` and YAML files                         # CHANGED
-- Sort keys alphabetically at all nesting levels
-- Use 2-space indentation
-- Ensure trailing newline
-```
-
-**Update rules followed:**
-- Read existing file first
-- Only modified/added what was requested
-- Preserved all existing structure
-- Updated description to include new trigger terms
+**Update rules:**
+- Always read existing file before modifying
+- Only change what the user asked for — don't restructure or "improve" other sections
+- Update frontmatter `description` trigger terms when scope changes
+- If adding a new capability creates a new execution path, add a Cookbook route
+- If adding a new capability needs new config, add to Variables
 
 ---
 
