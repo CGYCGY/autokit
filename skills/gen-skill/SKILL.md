@@ -163,6 +163,7 @@ Based on the user's idea, determine which sections to include:
 - `best-practices.md` - Skill authoring conventions and rules
 - `validation-checklist.md` - Pre and post-generation validation
 - `examples.md` - Example skill generations for reference
+- `templates.md` - Skill structure templates (minimal, standard, full)
 - `claude-docs.md` - Official documentation URLs for fetching
 
 ## Report
