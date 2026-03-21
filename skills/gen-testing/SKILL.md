@@ -1,5 +1,5 @@
 ---
-name: testing-generator
+name: gen-testing
 description: Generates customized testing skills for projects by analyzing test patterns, detecting development environment (Docker, local), and creating executable test guidelines. Use when user asks to "generate testing guidelines", "create test skill", "setup testing", "configure test environment", or mentions "testing conventions", "how to test", "test agent".
 context: fork
 agent: Plan

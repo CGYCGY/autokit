@@ -1,5 +1,5 @@
 ---
-name: guidelines-generator
+name: gen-guidelines
 description: Generates customized coding guidelines for projects by analyzing existing code patterns OR setting up standards for new empty projects. Use when user asks to "generate guidelines", "create standards", "analyze patterns", "standardize code", "setup new project standards", or mentions "coding conventions". Supports Go, Python, and TypeScript/JavaScript projects with modular architecture templates (DDD/CQRS, Clean Architecture, layered, modular monolith, microservices-ready).
 context: fork
 agent: Plan

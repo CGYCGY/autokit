@@ -15,9 +15,9 @@ A personal library of Claude Code skills and commands for development workflows.
 | `gen-agent` | Creates, generates, and updates Claude Code agents from user ideas. Produces well-structured AGENT.md files with output contracts and optional supporting directories. | — |
 | `gen-prompt` | Structures user ideas into well-formatted prompts following a consistent standard. Supports one-time display and saved commands. | — |
 | `gen-skill` | Creates, generates, and updates Claude Code skills from user ideas. Produces well-structured SKILL.md files with optional supporting directories. | — |
-| `guidelines-generator` | Generates a customized coding guidelines skill by analyzing existing code patterns or setting up standards for a new project. Supports Go, Python, and TypeScript with architecture templates (DDD/CQRS, Clean Architecture, modular monolith, etc.). Optionally invokes `testing-generator` after completion. | `testing-generator` *(optional)* |
+| `gen-guidelines` | Generates a customized coding guidelines skill by analyzing existing code patterns or setting up standards for a new project. Supports Go, Python, and TypeScript with architecture templates (DDD/CQRS, Clean Architecture, modular monolith, etc.). Optionally invokes `gen-testing` after completion. | `gen-testing` *(optional)* |
 | `project-architect` | Generates foundational project documentation before development begins. Supports fullstack, frontend-only, and backend-only modes. Produces project overview, tech stack, data models, feature list, architecture, API contracts, UI flows, and roadmap. | — |
-| `testing-generator` | Generates a customized testing skill by analyzing test patterns and detecting the development environment (Docker or local). Produces executable test guidelines including environment setup, database configuration, and seed data management. | — |
+| `gen-testing` | Generates a customized testing skill by analyzing test patterns and detecting the development environment (Docker or local). Produces executable test guidelines including environment setup, database configuration, and seed data management. | — |
 
 ---
 
