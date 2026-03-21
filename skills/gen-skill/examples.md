@@ -1,153 +1,108 @@
 # Skill Generation Examples
 
-## Example 1: Simple User-Invocable Skill
+## Example 1: Simple Skill (No Variables, No Flags)
 
-**User request:** "Create a skill that runs my Go tests with coverage"
-
-**Generated output:**
-
-```markdown
----
-name: test-runner
-description: Runs Go unit tests with coverage reporting. Use when user asks to "run tests", "check coverage", "test my code", or "go test".
-argument-hint: [--package ./...] [--coverage]
-allowed-tools: Bash, Read
-model: sonnet
-context: fork
-agent: general-purpose
-user-invocable: true
-disable-model-invocation: true
-version: "1.0.0"
----
-
-# Test Runner
-
-## Purpose
-
-Run Go unit tests and report coverage results.
-
-## Variables
-
-- `--package`: Package path to test (default: `./...`)
-- `--coverage`: Generate HTML coverage report (default: off)
-
-## Instructions
-
-- Always run tests from the project root
-- If `go.mod` not found, ask user for the correct directory
-- Parse test output for failures and report summary
-- Coverage report goes to `coverage.html` in project root
-
-## Workflow
-
-1. Verify `go.mod` exists in working directory
-2. Run `go test <package> -v -count=1`
-3. If `--coverage`: run with `-coverprofile=coverage.out` and generate HTML
-4. Parse output: total tests, passed, failed, skipped
-5. Report summary with any failure details
-
-## Cookbook
-
-### Standard Run
-- **IF:** No flags provided
-- **THEN:** Run `go test ./... -v -count=1`
-- **EXAMPLES:** "run tests", "test my code", "go test"
-
-### With Coverage
-- **IF:** `--coverage` flag set
-- **THEN:** Run with `-coverprofile`, generate HTML, report percentage
-- **EXAMPLES:** "run tests with coverage", "check coverage", "coverage report"
-
-### Specific Package
-- **IF:** `--package` flag set to a path
-- **THEN:** Run tests only for that package
-- **EXAMPLES:** "test the auth package", "run tests for ./internal/api"
-```
-
-**Why this works:**
-- Single-purpose, focused skill
-- Variables map directly to workflow steps
-- Cookbook routes have observable IF conditions
-- No supporting directories needed (simple skill)
-
----
-
-## Example 2: Skill with Cookbook Routes
-
-**User request:** "Create a skill that generates database migrations for different ORMs"
+**User request:** "Create a skill that formats JSON files"
 
 **Generated output:**
 
 ```markdown
 ---
-name: migration-gen
-description: Generates database migration files for detected ORM. Supports GORM, Prisma, and SQLAlchemy. Use when user asks to "create migration", "generate migration", "add migration", "new migration", or "schema change".
-argument-hint: <migration description> [--orm gorm|prisma|sqlalchemy]
-allowed-tools: Bash, Read, Write, Glob
-context: fork
-agent: Plan
+name: json-formatter
+description: Formats JSON files with consistent indentation and sorting. Use when user asks to "format json", "prettify json", "fix json formatting", or "indent json".
+allowed-tools: Read, Write, Bash, Glob
 user-invocable: true
-version: "1.0.0"
 ---
 
-# Migration Generator
+# JSON Formatter
 
 ## Purpose
 
-Generate database migration files based on detected or specified ORM.
-
-## Variables
-
-- `--orm`: Force a specific ORM (`gorm`, `prisma`, `sqlalchemy`). Auto-detected if omitted.
+Format JSON files with consistent 2-space indentation and sorted keys.
 
 ## Instructions
 
-### ORM Detection Rules
-- **GORM**: Look for `gorm.io/gorm` in `go.mod` or `go.sum`
-- **Prisma**: Look for `prisma` in `package.json` or `schema.prisma` file
-- **SQLAlchemy**: Look for `sqlalchemy` in `requirements.txt`, `pyproject.toml`, or `Pipfile`
-- If multiple ORMs detected, ask user which one
-- If none detected and `--orm` not set, ask user
-
-### Migration Naming
-- Timestamp prefix: `YYYYMMDDHHMMSS`
-- Descriptive suffix from user input: `add_users_table`, `alter_orders_add_status`
-- Lowercase, underscores for separation
+- Detect JSON files by extension (`.json`, `.jsonc`)
+- Preserve comments in `.jsonc` files
+- Sort keys alphabetically at all nesting levels
+- Use 2-space indentation
+- Ensure trailing newline
 
 ## Workflow
 
-1. Detect ORM from project files (or use `--orm` flag)
-2. Parse user's migration description
-3. Generate migration file using ORM-specific format
-4. Place file in ORM's expected migrations directory
-5. Report file path and suggest next steps (review, apply)
+1. Find JSON files in working directory (or specified path)
+2. Read each file
+3. Parse, sort keys, re-indent with 2 spaces
+4. Write formatted output back to the file
+5. Report which files were formatted
 
-## Cookbook
+## Report
 
-### GORM Migration
-- **IF:** GORM detected or `--orm gorm`
-- **THEN:** Generate Go migration file with `AutoMigrate` or raw SQL. Place in `migrations/`
-- **EXAMPLES:** "create migration to add users table", "gorm migration for orders"
-
-### Prisma Migration
-- **IF:** Prisma detected or `--orm prisma`
-- **THEN:** Update `schema.prisma`, run `npx prisma migrate dev --name <name>`
-- **EXAMPLES:** "prisma migration for new product model", "add field to user schema"
-
-### SQLAlchemy Migration
-- **IF:** SQLAlchemy detected or `--orm sqlalchemy`
-- **THEN:** Generate Alembic revision with `alembic revision --autogenerate -m "<name>"`
-- **EXAMPLES:** "alembic migration for orders table", "sqlalchemy migration add status column"
+- List files formatted with before/after line counts
+- Flag any files that failed to parse
 ```
 
 **Why this works:**
-- Cookbook routes have testable conditions (file existence, flag values)
-- Each route produces a different output format
-- Detection logic is in Instructions, execution paths in Cookbook
+- No Variables section — skill doesn't need configurable options or user arguments
+- No Cookbook — single execution path
+- Simple, focused, one capability
 
 ---
 
-## Example 3: Complex Skill with Supporting Files
+## Example 2: Skill with Internal Variables (No Flags)
+
+**User request:** "Create a skill that sets up Cloudflare DNS records for a project"
+
+**Generated output:**
+
+```markdown
+---
+name: dns-setup
+description: Creates Cloudflare DNS records for project domains. Use when user asks to "setup dns", "add dns record", "configure cloudflare", or "point domain".
+allowed-tools: Bash, Read, Write
+user-invocable: true
+---
+
+# DNS Setup
+
+## Purpose
+
+Create and manage Cloudflare DNS records for project domains.
+
+## Variables
+
+SKILL_TOOLS: <absolute-path-to-this-skill>/tools
+CONFIG_FILE: deploy/.env.deploy
+
+## Instructions
+
+- Always read CONFIG_FILE first to check for existing CLOUDFLARE_ZONE_ID and DOMAIN
+- If zone ID is missing, ask user for the Cloudflare zone
+- Validate domain format before creating records
+- Default record type is CNAME unless user specifies otherwise
+
+## Workflow
+
+1. Read CONFIG_FILE for existing configuration
+2. Ask user for subdomain and target if not provided
+3. Run `bash ${SKILL_TOOLS}/create-record.sh <type> <subdomain> <target>`
+4. Verify record was created
+5. Update CONFIG_FILE with new DOMAIN value
+
+## Report
+
+- Show created DNS record details (type, name, target)
+- Confirm domain is resolvable
+```
+
+**Why this works:**
+- Variables section has internal paths the skill references — not user flags
+- No `$ARGUMENTS` or flags — skill gathers input conversationally
+- Follows the same pattern as `coolify-setup`
+
+---
+
+## Example 3: Complex Skill with Flags and Supporting Files
 
 **User request:** "Create a skill that generates API documentation from code comments, supporting OpenAPI, GraphQL, and gRPC with multiple output formats"
 
@@ -160,9 +115,7 @@ description: Generates API documentation from code annotations. Supports OpenAPI
 argument-hint: [--type openapi|graphql|grpc] [--format md|html|json]
 allowed-tools: Read, Write, Bash, Glob, Grep
 context: fork
-agent: Plan
 user-invocable: true
-version: "1.0.0"
 ---
 
 # API Documentation Generator
@@ -173,6 +126,9 @@ Extract API definitions from source code and generate formatted documentation.
 
 ## Variables
 
+USER_INPUT: $ARGUMENTS
+
+### Flags
 - `--type`: API type (`openapi`, `graphql`, `grpc`). Auto-detected if omitted.
 - `--format`: Output format (`md`, `html`, `json`). Default: `md`.
 
@@ -232,59 +188,58 @@ Extract API definitions from source code and generate formatted documentation.
 
 ## Supporting Files
 
-### Workflows
 - `workflows/detect-api.md` - API type detection logic
 - `workflows/extract-definitions.md` - Definition extraction procedures
 - `workflows/generate-docs.md` - Documentation generation with format templates
-
-### Templates
 - `templates/markdown.template.md` - Markdown output template
 - `templates/html.template.md` - HTML output template
 - `templates/endpoint.template.md` - Per-endpoint template
+
+## Report
+
+- Show generated file structure (tree format)
+- Confirm output location
+- Summarize endpoints/types documented
 ```
 
 **Why this works:**
+- Flags are justified — multiple output modes the user controls via slash command
 - SKILL.md stays concise by referencing workflows for detailed procedures
 - Supporting directories (`workflows/`, `templates/`) are justified (3+ files each)
-- Each workflow phase has a clear handoff
 - Complex logic lives in referenced files, not inline
 
 ---
 
 ## Example 4: Updating an Existing Skill
 
-**User request:** "Update my test-runner skill to support parallel test execution and add a --timeout flag"
+**User request:** "Update my json-formatter skill to support YAML files too"
 
 **Process:**
 
-1. Read existing `.claude/skills/test-runner/SKILL.md`
-2. Identify changes: new `--timeout` variable, new `--parallel` variable, new cookbook route
-3. Preserve existing content, add new sections
+1. Read existing `.claude/skills/json-formatter/SKILL.md`
+2. Identify changes: description update, instructions update, workflow update
+3. Preserve existing content, modify relevant sections
 
 **Changes applied:**
 
 ```markdown
-## Variables (updated)
+## description (updated)
+Formats JSON and YAML files with consistent indentation and sorting. Use when user asks to
+"format json", "prettify json", "format yaml", "fix formatting", or "indent json".
 
-- `--package`: Package path to test (default: `./...`)
-- `--coverage`: Generate HTML coverage report (default: off)
-- `--parallel`: Run tests in parallel across packages (default: off)    # ADDED
-- `--timeout`: Test timeout duration (default: `30s`)                   # ADDED
-
-## Cookbook (new route added)
-
-### Parallel Execution                                                   # ADDED
-- **IF:** `--parallel` flag set
-- **THEN:** Run `go test ./... -v -count=1 -parallel <cpu_count> -timeout <timeout>`
-- **EXAMPLES:** "run tests in parallel", "parallel test execution"
+## Instructions (updated)
+- Detect files by extension (`.json`, `.jsonc`, `.yaml`, `.yml`)       # CHANGED
+- Preserve comments in `.jsonc` and YAML files                         # CHANGED
+- Sort keys alphabetically at all nesting levels
+- Use 2-space indentation
+- Ensure trailing newline
 ```
 
 **Update rules followed:**
 - Read existing file first
 - Only modified/added what was requested
-- Preserved all existing cookbook routes
-- Added new variables to existing Variables section
-- Incremented version if present
+- Preserved all existing structure
+- Updated description to include new trigger terms
 
 ---
 
@@ -306,19 +261,14 @@ user-invocable: true
 One-liner description of what this skill does.
 ```
 
-### Standard Skill (Common Sections)
+### Standard Skill (Internal Variables, No Flags)
 
 ```markdown
 ---
 name: skill-name
-description: Does X with Y options. Use when user asks to "do X", "run X", "configure Y".
-argument-hint: <required-input> [--optional-flag]
-allowed-tools: Bash, Read
-model: sonnet
-context: fork
-agent: general-purpose
+description: Does X with Y. Use when user asks to "do X", "run X", "configure Y".
+allowed-tools: Bash, Read, Write
 user-invocable: true
-version: "1.0.0"
 ---
 
 # Skill Title
@@ -329,11 +279,11 @@ One-liner description.
 
 ## Variables
 
-- `--flag`: Description (default: value)
+SOME_PATH: <absolute-path-to-this-skill>/tools
+CONFIG_FILE: path/to/config
 
 ## Instructions
 
-### Rule Group
 - Rule 1
 - Rule 2
 
@@ -343,15 +293,13 @@ One-liner description.
 2. Step two
 3. Step three
 
-## Cookbook
+## Report
 
-### Route Name
-- **IF:** condition
-- **THEN:** action
-- **EXAMPLES:** "trigger phrase 1", "trigger phrase 2"
+- Summary of what was done
+- Confirm output location
 ```
 
-### Full Skill (All Optional Fields + Supporting Files)
+### Full Skill (Flags + Supporting Files)
 
 ```markdown
 ---
@@ -359,12 +307,8 @@ name: skill-name
 description: Does X, Y, Z with multiple modes. Use when user asks to "do X", "run Y", "configure Z".
 argument-hint: <input> [--mode a|b|c] [--output path]
 allowed-tools: Read, Write, Bash, Glob, Grep
-model: opus
 context: fork
-agent: Plan
 user-invocable: true
-disable-model-invocation: false
-version: "1.0.0"
 ---
 
 # Skill Title
@@ -375,6 +319,9 @@ One-liner description.
 
 ## Variables
 
+USER_INPUT: $ARGUMENTS
+
+### Flags
 - `--mode`: Execution mode (default: `a`)
 - `--output`: Output path (default: current directory)
 
@@ -383,10 +330,6 @@ One-liner description.
 ### Category Rules
 - Rule 1
 - Rule 2
-
-### Another Category
-- Rule 3
-- Rule 4
 
 ## Workflow
 
@@ -414,15 +357,16 @@ One-liner description.
 
 ## Supporting Files
 
-### Workflows
 - `workflows/phase-1.md` - Phase 1 detailed procedure
 - `workflows/phase-2.md` - Phase 2 detailed procedure
-
-### Templates
 - `templates/output.template.md` - Output template
-
-### Tools
 - `tools/helper.sh` - Helper script
+
+## Report
+
+- Show created file structure (tree format)
+- Confirm output location
+- Summarize what was generated
 ```
 
 ---
