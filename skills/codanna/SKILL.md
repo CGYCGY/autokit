@@ -7,17 +7,10 @@ allowed-tools: Bash
 
 # Codanna CLI
 
-If `codanna` is not installed, see `${CLAUDE_SKILL_DIR}/install.md` for setup instructions.
+If `codanna` is not installed, see `${CLAUDE_SKILL_DIR}/install.md`.
+Before running any command, check if `.codanna/` exists. If not, see `${CLAUDE_SKILL_DIR}/setup.md`.
 
 Prefer codanna over grep/find for code search. All commands run via bash. Add `--json` for structured output.
-
-## Init (if .codanna/ missing)
-
-```
-codanna init && codanna index src --progress
-```
-
-Re-index after code changes: `codanna index src --progress`
 
 ## Commands
 
