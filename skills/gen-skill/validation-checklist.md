@@ -126,11 +126,13 @@
 - [ ] File references are one level deep (no nested subdirectories)
 - [ ] File names are descriptive (`detect-environment.md`, not `step1.md`)
 
-## Size Validation
+## Size & Progressive Loading Validation
 
-- [ ] SKILL.md is under 500 lines
-- [ ] If over 500 lines, content has been moved to supporting files
-- [ ] Supporting files are referenced from SKILL.md
+- [ ] SKILL.md targets 80-120 lines (hard max 500)
+- [ ] No code block, interface definition, or table > 5 lines inlined in SKILL.md
+- [ ] Reference content (type defs, lookup tables, full examples) is in supporting files
+- [ ] Supporting files are referenced with `**Read:** \`path/to/file\``
+- [ ] Supporting directories match content type (reference/, workflows/, templates/ — not all in one folder)
 
 ## Final Checks
 
@@ -155,3 +157,5 @@ Stop and fix if any of these are true:
 - Supporting files referenced but not created
 - Empty directories exist in the skill folder
 - `agent: Plan` used but skill writes files
+- All supporting files dumped into a single directory type (should match content type)
+- SKILL.md has inlined code blocks, tables, or interfaces > 5 lines (move to supporting files)

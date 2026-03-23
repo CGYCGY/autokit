@@ -30,9 +30,13 @@ USER_INPUT: $ARGUMENTS
 - **Update**: Existing skill found, or user says "update", "modify", "change", "fix"
 - For updates: read existing SKILL.md first, apply only requested changes, preserve unchanged sections
 
-### Size Constraint
+### Size & Progressive Loading
 
-Generated SKILL.md must stay under 500 lines. If content exceeds this, move detailed content to supporting files and reference them from SKILL.md.
+- Target 80-120 lines for SKILL.md. Hard max 500 lines.
+- SKILL.md is consumed by an agent, not read by humans. Every line must be actionable.
+- Code blocks, interfaces, tables, or examples longer than 5 lines MUST go in supporting files, referenced with `**Read:** \`path/to/file.md\``
+- Inline only: purpose, variables, high-level rules, workflow phase summaries (2-5 lines each), cookbook route headers
+- Reference: detailed procedures, type definitions, lookup tables, full examples, templates
 
 ### Description Writing
 
@@ -67,12 +71,15 @@ Every cookbook route must follow:
 
 ### Supporting Directories
 
-Create only when needed:
-- `cookbook/`: When cookbook routes reference external procedure files
-- `prompts/`: When skill needs reusable prompt templates
-- `tools/`: When skill needs executable scripts (bash, python)
-- `templates/`: When skill generates files from templates
-- `workflows/`: When skill has multi-phase processes needing detailed steps
+Match directory type to content type — do not dump everything into one folder:
+- `reference/`: Lookup material — interfaces, type tables, configuration docs, API specs
+- `workflows/`: Step-by-step procedures, checklists, multi-phase processes
+- `templates/`: Scaffolds and boilerplate to copy/fill
+- `cookbook/`: Detailed procedure files for cookbook routes
+- `prompts/`: Reusable prompt templates
+- `tools/`: Executable scripts (bash, python)
+
+Create only when needed. Do not create empty directories or directories with fewer than 3 files (inline instead).
 
 ### Anti-patterns
 
@@ -80,7 +87,7 @@ Create only when needed:
 - Do not include explanatory text meant for human readers (optimize for agent execution)
 - Do not duplicate what the description already says
 - Do not create empty supporting directories
-- Do not use subdirectories for fewer than 3 files
+- Do not dump all supporting files into one directory type (match dir to content type)
 
 ## Workflow
 
@@ -98,7 +105,7 @@ Create only when needed:
 3. **Read** `templates.md` for structure templates
 4. **Read** `examples.md` for reference patterns
 
-### Phase 3: Weigh Sections
+### Phase 3: Weigh Sections & Plan Loading
 
 Based on the user's idea, determine which sections to include:
 
@@ -106,15 +113,19 @@ Based on the user's idea, determine which sections to include:
 2. Analyze idea for rules/constraints -> Instructions
 3. Analyze idea for sequential steps -> Workflow
 4. Analyze idea for conditional branches -> Cookbook
-5. Determine if supporting directories are needed
-6. Estimate line count; plan supporting files if > 500 lines
+5. For each section, split inline vs reference:
+   - Any code block, interface, table, or example > 5 lines → supporting file
+   - Workflow phase details > 5 lines → supporting file
+   - Instruction with embedded reference data → supporting file
+6. Plan supporting directory structure (match dir type to content type)
+7. Target 80-120 lines for SKILL.md (hard max 500)
 
 ### Phase 4: Generate Skill
 
 1. Compose YAML frontmatter (name, description, and relevant optional fields from `reference.md`)
 2. Write Purpose section (one-liner)
-3. Write included sections based on Phase 3 weighing
-4. Create supporting files if needed
+3. Write included sections — inline only rules and summaries, use `**Read:** \`path/to/file\`` for reference content
+4. Create supporting files grouped by type (reference/, workflows/, templates/, etc.)
 5. Apply output mode (`--file`, `--simple`, or `--output`)
 
 ### Phase 5: Validate
