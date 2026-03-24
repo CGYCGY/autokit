@@ -14,7 +14,7 @@
 | `effort` | string | inherit from session | Effort level override. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only). |
 | `permissionMode` | string | `default` | Permission handling: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`. |
 | `maxTurns` | number | — | Maximum number of agentic turns before the agent stops. |
-| `skills` | string/array | — | Skills to preload into the agent's context at startup. Full skill content is injected. |
+| `skills` | array | — | Skills to preload into the agent's context at startup. Full skill content is injected. **Must use YAML list format.** |
 | `mcpServers` | array | — | MCP servers available to this agent. Either a server name (string) or inline definition (object). |
 | `hooks` | object | — | Lifecycle hooks scoped to this agent. Supported: `PreToolUse`, `PostToolUse`, `Stop`. |
 | `memory` | string | — | Persistent memory scope: `user`, `project`, or `local`. Enables cross-session learning. |
@@ -28,7 +28,7 @@
 - `tools` supports `Agent(worker, researcher)` syntax to restrict which sub-agents can be spawned
 - `permissionMode: bypassPermissions` should be used with caution
 - `memory` scopes: `user` = `~/.claude/agent-memory/<name>/`, `project` = `.claude/agent-memory/<name>/`, `local` = `.claude/agent-memory-local/<name>/`
-- `skills` injects full skill content at startup — agent does not inherit skills from parent conversation
+- `skills` must use YAML list format (`- skill-name`), not comma-separated strings. Injects full skill content at startup — agent does not inherit skills from parent conversation
 - `mcpServers` can scope MCP servers to an agent without exposing them to the main conversation
 - Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` fields
 

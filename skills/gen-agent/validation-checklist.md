@@ -11,7 +11,7 @@
 
 ## Pre-Update Checks (Updates Only)
 
-- [ ] Existing `.claude/agents/<agent-name>/AGENT.md` read in full
+- [ ] Existing `.claude/agents/<agent-name>.md` read in full
 - [ ] Changes requested by user are clearly understood
 - [ ] Unchanged sections identified and will be preserved
 - [ ] Supporting files checked for impact of changes
@@ -34,7 +34,7 @@
 - [ ] Maximum 64 characters
 - [ ] Descriptive and specific (not `helper`, `agent`, `worker`)
 - [ ] No redundant suffix (`-agent`, `-bot`)
-- [ ] Name matches directory name in `.claude/agents/`
+- [ ] Name matches file name in `.claude/agents/` (e.g., `name: my-agent` → `my-agent.md`)
 
 ## Description Validation
 
@@ -91,10 +91,9 @@
 
 ## File Location Validation
 
-- [ ] Agent directory: `.claude/agents/<agent-name>/`
-- [ ] Main file: `.claude/agents/<agent-name>/AGENT.md`
-- [ ] Directory name matches `name` field in frontmatter
-- [ ] For `--simple` mode: single AGENT.md, no subdirectories
+- [ ] Agent file: `.claude/agents/<agent-name>.md` (flat file, not inside a subdirectory)
+- [ ] File name matches `name` field in frontmatter
+- [ ] Supporting files (if needed): `.claude/agents/<agent-name>/` directory (only when content exceeds 500 lines)
 - [ ] For `--output` mode: no files written, content displayed in chat
 
 ## Content Validation
@@ -130,9 +129,9 @@
 
 ## Size Validation
 
-- [ ] AGENT.md is under 500 lines
-- [ ] If over 500 lines, content has been moved to supporting files
-- [ ] Supporting files are referenced from AGENT.md
+- [ ] Agent `.md` file is under 500 lines
+- [ ] If over 500 lines, content has been moved to supporting files in `.claude/agents/<agent-name>/`
+- [ ] Supporting files are referenced from the agent file
 
 ## Final Checks
 
@@ -151,7 +150,7 @@ Stop and fix if any of these are true:
 - Description is just the agent name restated
 - Agent body reads as procedural steps instead of a system prompt
 - Output Contract is missing
-- AGENT.md exceeds 500 lines with no supporting files
+- Agent file exceeds 500 lines with no supporting files
 - `name` or `description` field is missing
 - Agent covers multiple unrelated domains
 - `permissionMode: bypassPermissions` used without justification

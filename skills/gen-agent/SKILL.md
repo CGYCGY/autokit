@@ -11,15 +11,14 @@ user-invocable: true
 
 ## Purpose
 
-Generate or update Claude Code agents (AGENT.md files) from user ideas, producing well-structured agent definitions with optional supporting directories.
+Generate or update Claude Code agent `.md` files from user ideas, producing well-structured agent definitions.
 
 ## Variables
 
 USER_INPUT: $ARGUMENTS
 
 ### Flags
-- `--file` or `-f`: (default) Save to `.claude/agents/<agent-name>/AGENT.md` with supporting dirs
-- `--simple` or `-s`: Single AGENT.md only, no subdirectories
+- `--file` or `-f`: (default) Save to `.claude/agents/<agent-name>.md`
 - `--output` or `-o`: Display generated content without saving files
 
 ## Instructions
@@ -28,7 +27,7 @@ USER_INPUT: $ARGUMENTS
 
 - **Create**: No existing agent with that name in `.claude/agents/`
 - **Update**: Existing agent found, or user says "update", "modify", "change", "fix"
-- For updates: read existing AGENT.md first, apply only requested changes, preserve unchanged sections
+- For updates: read existing `.claude/agents/<agent-name>.md` first, apply only requested changes, preserve unchanged sections
 
 ### Agent vs Skill Awareness
 
@@ -39,7 +38,7 @@ USER_INPUT: $ARGUMENTS
 
 ### Size Constraint
 
-Generated AGENT.md must stay under 500 lines. If content exceeds this, move detailed content to supporting files and reference them from AGENT.md.
+Generated agent file must stay under 500 lines. If content exceeds this, move detailed content to supporting files in `.claude/agents/<agent-name>/` and reference them from the agent file.
 
 ### Description Writing
 
@@ -74,7 +73,7 @@ Evaluate the user's idea and include only relevant sections:
 
 1. Parse user arguments for agent idea and flags (`--file`, `--simple`, `--output`)
 2. Determine operation: create or update
-3. For updates: read existing `.claude/agents/<agent-name>/AGENT.md`
+3. For updates: read existing `.claude/agents/<agent-name>.md`
 4. If idea is vague, ask user to clarify: purpose, delegation triggers, capabilities
 
 ### Phase 2: Load References
@@ -92,16 +91,15 @@ Based on the user's idea, determine which sections to include:
 2. Analyze idea for rules/constraints -> Instructions
 3. Define Output Contract (always included)
 4. Analyze idea for fixed sequential process -> Workflow (rare)
-5. Determine if supporting directories are needed
-6. Estimate line count; plan supporting files if > 500 lines
+5. Estimate line count; plan supporting files in `.claude/agents/<agent-name>/` if > 500 lines
 
 ### Phase 4: Generate Agent
 
 1. Compose YAML frontmatter (`name`, `description`, and relevant optional fields from `reference.md`)
 2. Write system prompt body (role definition, behavioral guidelines)
 3. Write included sections based on Phase 3 weighing
-4. Create supporting files if needed
-5. Apply output mode (`--file`, `--simple`, or `--output`)
+4. Create supporting files in `.claude/agents/<agent-name>/` directory if needed (only when > 500 lines)
+5. Apply output mode (`--file` or `--output`)
 
 ### Phase 5: Validate
 
@@ -115,16 +113,16 @@ Based on the user's idea, determine which sections to include:
 
 ## Cookbook
 
-### Simple Agent (No Subdirs)
+### Simple Agent
 
-- **IF:** Idea is straightforward, focused role, few rules
-- **THEN:** Generate single AGENT.md with inline content, suggest `--simple` if not set
+- **IF:** Idea is straightforward, focused role, few rules, under 500 lines
+- **THEN:** Generate `.claude/agents/<agent-name>.md` (single flat file)
 - **EXAMPLES:** "create an agent that reviews code", "make a debugging agent"
 
-### Complex Agent (With Subdirs)
+### Complex Agent (With Supporting Files)
 
-- **IF:** Idea has detailed domain knowledge, reference material, or extensive guidelines
-- **THEN:** Generate AGENT.md + supporting directories (prompts/, reference/)
+- **IF:** Idea has detailed domain knowledge, reference material, or content exceeds 500 lines
+- **THEN:** Generate `.claude/agents/<agent-name>.md` + supporting directory `.claude/agents/<agent-name>/` with reference files
 - **EXAMPLES:** "create an agent that reviews API security with OWASP guidelines"
 
 ### Update Existing Agent
