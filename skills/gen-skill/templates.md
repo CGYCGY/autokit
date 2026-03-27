@@ -115,7 +115,7 @@ USER_INPUT: $ARGUMENTS
 - `workflows/phase-1.md` - Phase 1 detailed procedure
 - `workflows/phase-2.md` - Phase 2 detailed procedure
 - `templates/output.template.md` - Output template
-- `tools/helper.sh` - Helper script
+- `tools/helper.ts` - Helper script (run with Bun)
 
 ## Report
 

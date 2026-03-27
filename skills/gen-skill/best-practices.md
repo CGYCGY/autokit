@@ -167,7 +167,7 @@ Create only when content justifies a separate file:
 |-----------|---------------|---------|
 | `cookbook/` | Cookbook routes need detailed procedures (>10 lines each) | Route procedure files |
 | `prompts/` | Skill needs reusable prompt templates | Template files |
-| `tools/` | Skill needs executable scripts | Bash/Python scripts |
+| `tools/` | Skill needs executable scripts | TypeScript with Bun (preferred), bash, python scripts |
 | `templates/` | Skill generates files from boilerplate | Template files |
 | `workflows/` | Multi-phase processes need detailed steps | Phase procedure files |
 

@@ -77,7 +77,7 @@ Match directory type to content type — do not dump everything into one folder:
 - `templates/`: Scaffolds and boilerplate to copy/fill
 - `cookbook/`: Detailed procedure files for cookbook routes
 - `prompts/`: Reusable prompt templates
-- `tools/`: Executable scripts (bash, python)
+- `tools/`: Executable scripts — TypeScript with Bun (preferred), bash, python
 
 Create only when needed. Do not create empty directories or directories with fewer than 3 files (inline instead).
 
