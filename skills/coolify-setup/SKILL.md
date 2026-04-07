@@ -94,16 +94,20 @@ When invoked, follow these steps:
    - Ask user: "What is your app domain? (e.g. myapp.example.com)"
    - Run `bash ${SKILL_TOOLS}/set-config.sh DOMAIN <value>`
    - Go to Phase 4b (update Coolify domain)
-3. Run `bash ${SKILL_TOOLS}/get-config.sh`, check CLOUDFLARE_ZONE_ID
-4. If CLOUDFLARE_ZONE_ID empty: ask user to fill CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID in .env.deploy, then confirm
-5. Get SUBDOMAIN from config, default to REPO_NAME
-6. Run `bash ${SKILL_TOOLS}/set-config.sh SUBDOMAIN <value>`
-7. Ask user: CNAME or A record
-8. Ask user: target (domain for CNAME, IP for A)
-9. Run `bash ${SKILL_TOOLS}/cloudflare/create-record.sh <type> <subdomain> <target>`
-10. Run `bash ${SKILL_TOOLS}/cloudflare/get-zone-name.sh` → capture zone name
-11. Construct DOMAIN=`${SUBDOMAIN}.${ZONE_NAME}`
-12. Run `bash ${SKILL_TOOLS}/set-config.sh DOMAIN <DOMAIN>`
+3. Run `bash ${SKILL_TOOLS}/get-config.sh`, check CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID
+4. If CLOUDFLARE_API_TOKEN empty: ask user to fill it in .env.deploy, then confirm
+5. If CLOUDFLARE_ZONE_ID empty:
+   - Ask user for their root domain (e.g. `example.com`)
+   - Run `bash ${SKILL_TOOLS}/cloudflare/find-zone-id.sh <domain>` → capture zone ID
+   - Run `bash ${SKILL_TOOLS}/set-config.sh CLOUDFLARE_ZONE_ID <zone-id>`
+6. Get SUBDOMAIN from config, default to REPO_NAME
+7. Run `bash ${SKILL_TOOLS}/set-config.sh SUBDOMAIN <value>`
+8. Ask user: CNAME or A record (for multi-record projects, loop steps 8–9 for each record)
+9. Ask user: target (domain for CNAME, IP for A)
+10. Run `bash ${SKILL_TOOLS}/cloudflare/create-record.sh <type> <subdomain> <target>`
+11. Run `bash ${SKILL_TOOLS}/cloudflare/get-zone-name.sh` → capture zone name
+12. Construct DOMAIN=`${SUBDOMAIN}.${ZONE_NAME}`
+13. Run `bash ${SKILL_TOOLS}/set-config.sh DOMAIN <DOMAIN>`
 
 ### Phase 4b: Update Coolify Domain
 
@@ -133,10 +137,14 @@ Run all tools with **project root as working directory**. **DO NOT copy tool scr
 | `coolify/list-servers.sh` | none | `uuid\|name\|ip` per line |
 | `coolify/list-projects.sh` | none | `uuid\|name\|desc` per line |
 | `coolify/create-project.sh` | `<name>` | uuid |
-| `coolify/create-app.sh` | `<project-uuid> <app-name> <image>` | uuid (also writes COOLIFY_APP_UUID and COOLIFY_WEBHOOK_URL to .env.deploy) |
+| `coolify/create-app.sh` | `<project-uuid> <app-name> <image>` | uuid (also writes COOLIFY_APP_UUID and COOLIFY_WEBHOOK_URL to .env.deploy); optional env vars: `DOCKER_IMAGE_TAG` (default: `latest`), `EXPOSED_PORT` (overrides Dockerfile EXPOSE; default: `80`), `PORTS_MAPPINGS` (e.g. `"25:25,587:587"`), `PERSISTENT_STORAGES` (e.g. `"vol-name:/data,vol2:/mnt"`) |
 | `coolify/set-envs.sh` | `<app-uuid> <env-file>` | status (reads file, never exposes values to Claude) |
 | `coolify/update-app-domain.sh` | `<app-uuid> <fqdn>` | status |
-| `cloudflare/create-record.sh` | `<type> <name> <content> [proxied]` | record-id |
+| `coolify/get-deployment-status.sh` | `<app-uuid>` | status string (e.g. `queued`, `in_progress`, `finished`, `failed`) or `none` if no deployments yet |
+| `coolify/get-app-logs.sh` | `<app-uuid> [lines]` | raw log lines (default 100); exit 2 if log API unavailable |
+| `cloudflare/create-record.sh` | `<type> <name> <content> [proxied\|priority]` | record-id; supports A, AAAA, CNAME, MX, TXT, SRV, CAA; idempotent (upserts by type+name) |
+| `cloudflare/list-records.sh` | `[type] [name-filter]` | `id\|type\|name\|content\|proxied` per line; paginates automatically |
+| `cloudflare/find-zone-id.sh` | `<domain>` | zone-id |
 | `cloudflare/get-zone-name.sh` | none | zone name (e.g. `example.com`) |
 
 ## Assets
