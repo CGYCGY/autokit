@@ -43,16 +43,18 @@ docker push "${IMAGE}:${TAG}"
 
 echo "==> Image pushed: ${IMAGE}:${TAG}"
 
-if [ -n "${COOLIFY_WEBHOOK_URL:-}" ]; then
+if [ -n "${COOLIFY_WEBHOOK_URL:-}" ] && [ -n "${COOLIFY_API_TOKEN:-}" ]; then
   echo "==> Triggering Coolify redeploy..."
-  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${COOLIFY_WEBHOOK_URL}")
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "Authorization: Bearer ${COOLIFY_API_TOKEN}" \
+    "${COOLIFY_WEBHOOK_URL}")
   if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
     echo "==> Coolify redeploy triggered (HTTP ${HTTP_CODE})"
   else
     echo "Warning: Coolify webhook returned HTTP ${HTTP_CODE}" >&2
   fi
 else
-  echo "==> No COOLIFY_WEBHOOK_URL set. Skipping redeploy trigger."
+  echo "==> No COOLIFY_WEBHOOK_URL or COOLIFY_API_TOKEN set. Skipping redeploy trigger."
 fi
 
 echo "==> Done."

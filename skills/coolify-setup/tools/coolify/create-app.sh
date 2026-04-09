@@ -11,9 +11,10 @@ TOKEN="${COOLIFY_API_TOKEN:?Set COOLIFY_API_TOKEN in deploy/.env.deploy}"
 SERVER="${COOLIFY_SERVER_UUID:?Set COOLIFY_SERVER_UUID in deploy/.env.deploy}"
 DEST="${COOLIFY_DEST_UUID:?Set COOLIFY_DEST_UUID in deploy/.env.deploy}"
 
-PROJECT_UUID="${1:?Usage: $0 <project-uuid> <app-name> <docker-image>}"
-APP_NAME="${2:?Usage: $0 <project-uuid> <app-name> <docker-image>}"
-IMAGE="${3:?Usage: $0 <project-uuid> <app-name> <docker-image>}"
+PROJECT_UUID="${1:?Usage: $0 <project-uuid> <app-name> <docker-image> [environment-name]}"
+APP_NAME="${2:?Usage: $0 <project-uuid> <app-name> <docker-image> [environment-name]}"
+IMAGE="${3:?Usage: $0 <project-uuid> <app-name> <docker-image> [environment-name]}"
+ENV_NAME_ARG="${4:-}"
 
 # Optional env var overrides (backward compatible)
 TAG="${DOCKER_IMAGE_TAG:-latest}"
@@ -29,14 +30,18 @@ if [ -z "${EXPOSED_PORT:-}" ] && [ -f "deploy/Dockerfile" ]; then
 fi
 EXPOSED_PORT="${EXPOSED_PORT:-80}"
 
-# Get environment name from project
-ENV_NAME=$(curl -sf \
-  -H "Authorization: Bearer ${TOKEN}" \
-  "${API}/projects/${PROJECT_UUID}/environments" \
-  | jq -r '.[0].name')
+# Get environment name: use arg if provided, otherwise detect from project
+if [ -n "$ENV_NAME_ARG" ]; then
+  ENV_NAME="$ENV_NAME_ARG"
+else
+  ENV_NAME=$(curl -sf \
+    -H "Authorization: Bearer ${TOKEN}" \
+    "${API}/projects/${PROJECT_UUID}/environments" \
+    | jq -r '.[0].name')
 
-if [ -z "$ENV_NAME" ] || [ "$ENV_NAME" = "null" ]; then
-  ENV_NAME="production"
+  if [ -z "$ENV_NAME" ] || [ "$ENV_NAME" = "null" ]; then
+    ENV_NAME="production"
+  fi
 fi
 
 # Build create payload; include ports_mappings only if set
@@ -110,7 +115,7 @@ fi
 # Construct webhook URL and update .env.deploy
 WEBHOOK_URL="${COOLIFY_URL}/api/v1/deploy?uuid=${uuid}&force=false"
 sed -i '/^COOLIFY_WEBHOOK_URL=/d' deploy/.env.deploy
-echo "COOLIFY_WEBHOOK_URL=${WEBHOOK_URL}" >> deploy/.env.deploy
+echo "COOLIFY_WEBHOOK_URL=\"${WEBHOOK_URL}\"" >> deploy/.env.deploy
 sed -i '/^COOLIFY_APP_UUID=/d' deploy/.env.deploy
 echo "COOLIFY_APP_UUID=${uuid}" >> deploy/.env.deploy
 

@@ -26,6 +26,12 @@ When invoked, follow these steps:
 
 1. Check `deploy/Dockerfile` exists in project root
 2. If missing: **STOP** and tell user: "No deploy/Dockerfile found. Create one for your project in deploy/Dockerfile first, or use a framework-specific setup skill (e.g. astro-setup) that provides one."
+3. Check `deploy/Dockerfile` has a `HEALTHCHECK` instruction. If missing:
+   - Read the Dockerfile to understand the base image and app type
+   - Add a `HEALTHCHECK` instruction. Use `wget` over `curl` — `wget` is available by default in alpine-based images, `curl` requires `apk add curl`
+   - If the app serves HTTP (nginx, node, etc.), add a `/healthz` endpoint and use: `HEALTHCHECK --interval=60s --timeout=5s --start-period=10s --retries=3 CMD wget -qO /dev/null http://localhost/healthz || exit 1`
+   - For nginx: also add a `location = /healthz { access_log off; return 200 "ok"; }` block to the nginx config
+   - For non-HTTP apps: use an appropriate check (e.g. process check, TCP check)
 
 ### Phase 1: Scaffold Deploy Directory
 
@@ -66,7 +72,8 @@ When invoked, follow these steps:
    - Run `bash ${SKILL_TOOLS}/set-config.sh REPO_NAME <lowercase-value>`
 9. Set IMAGE=`ghcr.io/${GITHUB_ORG}/${REPO_NAME}` (both must be lowercase — GHCR requirement)
 10. Ask user for app name, default to REPO_NAME
-11. Run `bash ${SKILL_TOOLS}/coolify/create-app.sh <project-uuid> <app-name> <IMAGE>`
+11. If the user specified an environment (e.g. "staging"), list environments with `curl -sf -H "Authorization: Bearer ${COOLIFY_API_TOKEN}" "${COOLIFY_BASE_URL}/api/v1/projects/<project-uuid>/environments"` and pass the environment name as 4th arg
+12. Run `bash ${SKILL_TOOLS}/coolify/create-app.sh <project-uuid> <app-name> <IMAGE> [environment-name]`
     - Port is auto-inferred from deploy/Dockerfile EXPOSE directive
 
 ### Phase 3b: Set App Environment Variables
@@ -86,6 +93,24 @@ When invoked, follow these steps:
    - If skip: go to Phase 4
    - Otherwise: write provided vars to `.env.production` (one KEY=VALUE per line)
    - Run `bash ${SKILL_TOOLS}/coolify/set-envs.sh <COOLIFY_APP_UUID> .env.production`
+
+### Phase 3c: Set Resource Limits
+
+1. Analyze the project to determine appropriate CPU and memory limits. Read the Dockerfile, package.json, and any app code needed to understand the workload type.
+2. Use these baselines, then adjust based on what you learn:
+   - Static site (nginx/caddy serving files): 0.5 CPU / 256M memory
+   - Lightweight API (Node/Bun, low traffic): 1 CPU / 512M memory
+   - Heavy API (high traffic, background jobs, LLM calls): 2 CPU / 1G memory
+   - Worker/queue processor: 1 CPU / 512M–1G memory
+3. Set limits via Coolify API:
+   ```bash
+   source deploy/.env.deploy
+   curl -sf -H "Authorization: Bearer ${COOLIFY_API_TOKEN}" \
+     -H "Content-Type: application/json" \
+     -X PATCH "${COOLIFY_BASE_URL}/api/v1/applications/${COOLIFY_APP_UUID}" \
+     -d '{"limits_cpus":"<cpu>","limits_memory":"<memory>"}'
+   ```
+4. Tell user what limits were set and why.
 
 ### Phase 4: DNS Setup (Optional)
 
@@ -137,7 +162,7 @@ Run all tools with **project root as working directory**. **DO NOT copy tool scr
 | `coolify/list-servers.sh` | none | `uuid\|name\|ip` per line |
 | `coolify/list-projects.sh` | none | `uuid\|name\|desc` per line |
 | `coolify/create-project.sh` | `<name>` | uuid |
-| `coolify/create-app.sh` | `<project-uuid> <app-name> <image>` | uuid (also writes COOLIFY_APP_UUID and COOLIFY_WEBHOOK_URL to .env.deploy); optional env vars: `DOCKER_IMAGE_TAG` (default: `latest`), `EXPOSED_PORT` (overrides Dockerfile EXPOSE; default: `80`), `PORTS_MAPPINGS` (e.g. `"25:25,587:587"`), `PERSISTENT_STORAGES` (e.g. `"vol-name:/data,vol2:/mnt"`) |
+| `coolify/create-app.sh` | `<project-uuid> <app-name> <image> [environment-name]` | uuid (also writes COOLIFY_APP_UUID and COOLIFY_WEBHOOK_URL to .env.deploy); optional 4th arg selects environment by name (default: first environment in project). Optional env vars: `DOCKER_IMAGE_TAG` (default: `latest`), `EXPOSED_PORT` (overrides Dockerfile EXPOSE; default: `80`), `PORTS_MAPPINGS` (e.g. `"25:25,587:587"`), `PERSISTENT_STORAGES` (e.g. `"vol-name:/data,vol2:/mnt"`) |
 | `coolify/set-envs.sh` | `<app-uuid> <env-file>` | status (reads file, never exposes values to Claude) |
 | `coolify/update-app-domain.sh` | `<app-uuid> <fqdn>` | status |
 | `coolify/get-deployment-status.sh` | `<app-uuid>` | status string (e.g. `queued`, `in_progress`, `finished`, `failed`) or `none` if no deployments yet |
@@ -194,6 +219,7 @@ After completing the skill, provide output following this format:
 - Image: [ghcr.io/org/repo]
 - Webhook: configured
 - Env vars: [N vars set from .env.production] | skipped
+- Resource limits: [cpu] CPU / [memory] memory — [reason]
 - DNS: [subdomain] → [target] | skipped
 - Domain: [domain] (set in Coolify)
 
