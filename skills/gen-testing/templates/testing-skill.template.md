@@ -63,22 +63,22 @@ Runs and manages tests for this project. Provides test execution commands, patte
 ## Cookbook
 
 ### Unit Tests Only
-- **IF:** User asks for "unit tests" or "quick tests"
+- **IF:** Request matches "unit tests", "quick test", or "test without db"
 - **THEN:** Execute `{{UNIT_TEST_COMMAND}}`
 - **EXAMPLES:** "run unit tests", "quick test", "test without db"
 
 ### Integration Tests
-- **IF:** User asks for "integration tests" or "db tests"
+- **IF:** Request matches "integration tests", "db tests", or "full tests"
 - **THEN:** Verify DB is ready, then execute `{{INTEGRATION_TEST_COMMAND}}`
 - **EXAMPLES:** "run integration tests", "test with database", "full tests"
 
 ### Single Test File
-- **IF:** User specifies a file or function
+- **IF:** Request includes a file path or function name (e.g. `tests/auth_test.go`, `TestLogin`)
 - **THEN:** Execute `{{SPECIFIC_TEST_COMMAND}} <file>`
 - **EXAMPLES:** "test user service", "run tests for auth"
 
 ### Coverage Report
-- **IF:** User asks for "coverage"
+- **IF:** Request matches "coverage" or "coverage report"
 - **THEN:** Execute `{{COVERAGE_COMMAND}}`, report percentage
 - **EXAMPLES:** "check coverage", "coverage report", "how much is tested"
 
