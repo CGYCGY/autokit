@@ -1,6 +1,6 @@
 # autokit
 
-A personal library of Claude Code skills and commands for development workflows.
+A personal library of Claude Code skills, commands, agents, and config for development workflows.
 
 ---
 
@@ -38,5 +38,22 @@ A personal library of Claude Code skills and commands for development workflows.
 | `gen-justfile` | Generates a `justfile` with container management, Docker deployment, and development commands tailored to the project. | — |
 | `gen-makefile` | Generates a `Makefile` with container management, Docker deployment, and development commands tailored to the project. | — |
 | `gen-scout` | Generates a customized `/scout` command that explores the codebase and gathers context before planning or implementing a new feature. | — |
+| `team` | Spawns a `TeamCreate`-based team to handle the given task. Orchestrates members via `SendMessage` instead of the `Agent` tool. | — |
 | `update-docs` | Updates documentation files based on recent implementation changes or staged git changes. Accepts file paths as arguments and rewrites them to reflect the current state of the code. | — |
 | `wp-migrate` | Migrates a WordPress export to Astro and reviews the funnel in one step. | `wp-to-astro`, `funnel-review` |
+
+---
+
+## Agents
+
+| Name | Description | Requires |
+|------|-------------|----------|
+| `codex-worker` | Supervises Codex CLI tasks by dispatching, polling, evaluating, and retrying. Use when delegating coding tasks that should run in Codex with automatic result validation. | `codex-cli` |
+
+---
+
+## Config
+
+| Name | Description |
+|------|-------------|
+| `statusline-command.sh` | Claude Code statusline script. Renders model, context usage, per-turn token detail (I/O/IC/IW with cumulative totals), and session cost. Copy to `~/.claude/statusline-command.sh` and reference from `statusLine.command` in `~/.claude/settings.json`. |
