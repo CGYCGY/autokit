@@ -32,7 +32,7 @@ For each pattern found:
 1. Pattern name
 2. Variations (A, B, C...)
 3. File count using each variation
-4. Best example file:line
+4. Best example file:line — pick the file with the most occurrences of this exact variation; if tied, pick the most recently modified file
 
 Return JSON:
 {

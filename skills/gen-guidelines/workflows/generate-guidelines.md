@@ -41,7 +41,13 @@ Decisions made: {{DECISIONS}}
 Use this template structure:
 {{TEMPLATE}}
 
-Output: Complete markdown file content
+Output: Complete markdown file content. Required sections:
+- Frontmatter (`name`, `description`)
+- Purpose section
+- Patterns section with code examples per variation (real code, not pseudocode)
+- Anti-Patterns section listing concrete files that need to be updated
+- Decision Rationale section linking back to `decisions.md`
+Do not return placeholders, summaries, or partial files. Every `{{...}}` placeholder in the template must be replaced with concrete content.
 ```
 
 **Note:** SKILL.md generation is sequential (depends on all data). Reference docs can be parallel.

@@ -31,7 +31,7 @@ Identify inconsistencies where multiple patterns exist for the same concern.
 For each inconsistency:
 1. Category name
 2. Patterns found (with file counts)
-3. Industry standard recommendation
+3. Industry standard recommendation — 2-4 sentences covering: (a) which pattern is the recommended default, (b) the rationale, (c) when each variation is appropriate if multiple should coexist
 4. Impact level (high/medium/low)
 
 Return JSON:

@@ -151,11 +151,11 @@ Create the following directory and files:
 
 ## Execution Notes
 
-- Be thorough but concise
-- Include file paths and line numbers when referencing code
+- Cover every relevant file under the architecture paths; do not skip a file because it looks unrelated until you confirm it is
+- Include file paths and line numbers for every code reference
 - Use markdown formatting for readability
-- Cross-reference documentation and code
-- Highlight any gaps or missing information
+- When referencing documentation, link it to the specific code path it describes
+- Highlight gaps or missing information explicitly under a "Gaps" subsection at the end of the file
 - Follow architecture patterns observed in the codebase
 
 Begin your scouting mission now.
