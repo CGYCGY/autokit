@@ -13,7 +13,7 @@ All fields are optional. Only `description` is recommended.
 | `user-invocable` | boolean | `true` | `false` = hidden from `/` menu. Only Claude can invoke. |
 | `allowed-tools` | string/array | all tools | Tools Claude can use without asking permission when skill is active. |
 | `model` | string | inherit | Model to use when skill is active. e.g. `sonnet`, `opus`, `haiku`, or full model ID. |
-| `effort` | string | inherit from session | Effort level override. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only). |
+| `effort` | string | inherit from session | Effort level override. Options: `low`, `medium`, `high`, `xhigh` (Opus 4.7+), `max`. |
 | `context` | string | — | Set to `fork` to run in a forked subagent context. |
 | `agent` | string | `general-purpose` | Subagent type when `context: fork` is set. Built-in: `Explore`, `Plan`, `general-purpose`, or custom from `.claude/agents/`. |
 | `hooks` | object | — | Hooks scoped to skill lifecycle. Supported types: `PreToolUse`, `PostToolUse`, `Stop`. |

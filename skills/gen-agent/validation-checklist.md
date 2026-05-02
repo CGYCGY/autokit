@@ -57,8 +57,7 @@
 - [ ] Valid value: `sonnet`, `opus`, `haiku`, full model ID, or `inherit`
 
 ### effort
-- [ ] Valid value: `low`, `medium`, `high`, or `max`
-- [ ] `max` only with Opus 4.6
+- [ ] Valid value: `low`, `medium`, `high`, `xhigh` (Opus 4.7+), or `max`
 
 ### permissionMode
 - [ ] Valid value: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`

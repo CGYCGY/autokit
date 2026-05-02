@@ -17,7 +17,7 @@
 - **`argument-hint`**: Hint for expected input. Use `<required>` and `[optional]` notation
 - **`allowed-tools`**: Comma-separated list of tools. Omit to allow all tools
 - **`model`**: Model preference (`sonnet`, `opus`, `haiku`). Omit to inherit
-- **`effort`**: Effort level override (`low`, `medium`, `high`, `max`). Omit to inherit from session
+- **`effort`**: Effort level override (`low`, `medium`, `high`, `xhigh` (Opus 4.7+), `max`). Omit to inherit from session
 - **`context`**: Set to `fork` for isolated subagent execution
 - **`agent`**: Subagent type when `context: fork` is set. Built-in: `Explore`, `Plan`, `general-purpose`, or custom agent name. Note: `Plan` is read-only
 - **`user-invocable`**: `true` (default) to show in `/` menu. `false` to hide

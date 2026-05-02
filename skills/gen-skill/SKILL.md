@@ -96,7 +96,13 @@ Create only when needed. Do not create empty directories or directories with few
 1. Parse user arguments for skill idea and flags (`--file`, `--simple`, `--output`)
 2. Determine operation: create or update
 3. For updates: read existing `.claude/skills/<skill-name>/SKILL.md`
-4. If idea is vague, ask user to clarify: purpose, triggers, inputs/outputs
+4. If idea is vague, ask user to clarify each missing dimension explicitly:
+   - **Purpose**: what specific problem does this skill solve?
+   - **Triggers**: what would the user say to invoke it?
+   - **Inputs**: what information does the skill need?
+   - **Outputs**: files, terminal output, both?
+   - **Modes**: one execution path, or multiple (cookbook routes)?
+   Do not generate until Purpose and Triggers are clear.
 
 ### Phase 2: Load References
 

@@ -48,7 +48,7 @@ Saved prompts (`.claude/commands/<name>.md`) can include frontmatter. Display-on
 | `allowed-tools` | No | Tools the prompt can use. Omit to allow all. |
 | `disable-model-invocation` | No | `true` to prevent Claude from auto-invoking. |
 | `model` | No | Model to use. Omit to inherit. |
-| `effort` | No | Effort level override. Options: `low`, `medium`, `high`, `max`. |
+| `effort` | No | Effort level override. Options: `low`, `medium`, `high`, `xhigh` (Opus 4.7+), `max`. |
 
 ### Notes
 

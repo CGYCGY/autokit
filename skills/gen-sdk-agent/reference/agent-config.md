@@ -19,7 +19,7 @@ export interface AgentConfig {
 
 ```typescript
 export const MODEL_TIERS = {
-  opus:   'claude-opus-4-6',
+  opus:   'claude-opus-4-7',
   sonnet: 'claude-sonnet-4-6',
   haiku:  'claude-haiku-4-5',
 } as const

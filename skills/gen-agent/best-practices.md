@@ -17,7 +17,7 @@
 - **`tools`**: Comma-separated list of allowed tools. Omit to inherit all
 - **`disallowedTools`**: Comma-separated list of denied tools
 - **`model`**: Model preference (`sonnet`, `opus`, `haiku`, or full ID). Omit to inherit
-- **`effort`**: Effort level override (`low`, `medium`, `high`, `max`). Omit to inherit
+- **`effort`**: Effort level override (`low`, `medium`, `high`, `xhigh` (Opus 4.7+), `max`). Omit to inherit
 - **`permissionMode`**: Permission handling mode. Default: `default`
 - **`maxTurns`**: Maximum agentic turns. Omit for unlimited
 - **`skills`**: Skills to preload into agent context

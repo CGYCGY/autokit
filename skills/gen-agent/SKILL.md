@@ -74,7 +74,13 @@ Evaluate the user's idea and include only relevant sections:
 1. Parse user arguments for agent idea and flags (`--file`, `--simple`, `--output`)
 2. Determine operation: create or update
 3. For updates: read existing `.claude/agents/<agent-name>.md`
-4. If idea is vague, ask user to clarify: purpose, delegation triggers, capabilities
+4. If idea is vague, ask user to clarify each missing dimension explicitly:
+   - **Role**: what is the agent's area of expertise?
+   - **Delegation triggers**: when should Claude delegate to it?
+   - **Capabilities**: read-only, or also makes changes?
+   - **Output**: findings, fixes, reports, or something else?
+   - **Memory**: should it learn across sessions?
+   Do not generate until at least Role and Delegation triggers are clear.
 
 ### Phase 2: Load References
 

@@ -80,7 +80,12 @@ Generated prompts must stay under 500 lines. Single file only, no supporting dir
 1. Parse user arguments for prompt idea and flags (`--save`, `--output`)
 2. Determine operation: create or update
 3. For updates: read existing `.claude/commands/<name>.md`
-4. If idea is vague, ask user to clarify: what should the prompt accomplish?
+4. If idea is vague, ask user to clarify each missing dimension explicitly:
+   - **Purpose**: what specific task should the prompt perform?
+   - **Input**: does it need `$ARGUMENTS`? If so, what shape?
+   - **Output**: what should the prompt produce — file, chat output, structured report?
+   - **Mode**: one-time display, or save as a reusable `/command`?
+   Do not generate until Purpose and Output are clear.
 
 ### Phase 2: Load References
 

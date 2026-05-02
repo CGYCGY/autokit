@@ -10,8 +10,8 @@
 | `description` | string | — | **Required.** When Claude should delegate to this agent. Used for automatic delegation decisions. |
 | `tools` | string/array | all tools | Tools the agent can use. Inherits all tools if omitted. Supports `Agent(type)` syntax to restrict spawnable sub-agents. |
 | `disallowedTools` | string/array | — | Tools to deny, removed from inherited or specified list. Applied before `tools`. |
-| `model` | string | `inherit` | Model to use: `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-6`), or `inherit`. |
-| `effort` | string | inherit from session | Effort level override. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only). |
+| `model` | string | `inherit` | Model to use: `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-7`), or `inherit`. |
+| `effort` | string | inherit from session | Effort level override. Options: `low`, `medium`, `high`, `xhigh` (Opus 4.7+), `max`. |
 | `permissionMode` | string | `default` | Permission handling: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`. |
 | `maxTurns` | number | — | Maximum number of agentic turns before the agent stops. |
 | `skills` | array | — | Skills to preload into the agent's context at startup. Full skill content is injected. **Must use YAML list format.** |
