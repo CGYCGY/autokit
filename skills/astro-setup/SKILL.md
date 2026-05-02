@@ -13,7 +13,7 @@ Scaffolds an Astro-specific Dockerfile and delegates all Coolify deployment setu
 
 ## Variables
 
-SKILL_ASSETS: <absolute-path-to-this-skill>/assets
+SKILL_ASSETS: ${CLAUDE_SKILL_DIR}/assets
 
 ## Workflow
 

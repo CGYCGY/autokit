@@ -15,8 +15,8 @@ For already-deployed projects (COOLIFY_WEBHOOK_URL exists), runs the update flow
 
 ## Variables
 
-SKILL_TOOLS: <absolute-path-to-this-skill>/tools
-SKILL_ASSETS: <absolute-path-to-this-skill>/assets
+SKILL_TOOLS: ${CLAUDE_SKILL_DIR}/tools
+SKILL_ASSETS: ${CLAUDE_SKILL_DIR}/assets
 
 ## Workflow
 
