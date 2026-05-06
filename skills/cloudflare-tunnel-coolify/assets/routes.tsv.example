@@ -1,0 +1,22 @@
+# Cloudflare Tunnel ingress routes
+# Format: TSV — hostname<TAB>service<TAB>originServerName?<TAB>noTLSVerify?
+# Lines starting with # and blank lines are ignored.
+#
+# ORDER MATTERS. Cloudflare matches top-to-bottom. Specific hostnames first,
+# wildcards last. set-tunnel-ingress.sh auto-appends a `http_status:404`
+# catch-all after the last entry.
+#
+# Columns:
+#   1. hostname           e.g. mail.example.com  or  *.example.com  or  example.com (apex)
+#   2. service            e.g. http://localhost:8080  or  https://localhost:443
+#   3. originServerName   (optional) hostname expected on the origin's TLS cert.
+#                         Required when service is https:// and the origin cert
+#                         is for a different name than the URL host (e.g. routing
+#                         *.example.com to https://localhost:443 served by a cert
+#                         valid for example.com).
+#   4. noTLSVerify        (optional) "true" to skip origin cert verification.
+#                         Use for self-signed internal HTTPS only.
+#
+# Example below: Stalwart mail admin on plain HTTP, Coolify catch-all wildcard.
+mail.example.com	http://localhost:18080
+*.example.com	https://localhost:443	example.com
