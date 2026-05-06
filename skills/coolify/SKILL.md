@@ -67,6 +67,7 @@ Run from project root.
 | `list-projects.sh` | none | `uuid\|name\|desc` per line |
 | `create-project.sh` | `<name>` | uuid |
 | `create-app.sh` | `<project-uuid> <app-name> <image> [environment-name]` | uuid (also writes `COOLIFY_APP_UUID` and `COOLIFY_WEBHOOK_URL` to `deploy/.env.deploy`). Optional env vars: `DOCKER_IMAGE_TAG` (default `latest`), `EXPOSED_PORT` (overrides Dockerfile EXPOSE; default `80`), `PORTS_MAPPINGS` (e.g. `"25:25,587:587"`), `PERSISTENT_STORAGES` (e.g. `"vol-name:/data,vol2:/mnt"`) |
+| `create-service.sh` | `<project-uuid> <type> <name> [environment-name]` | service uuid; deploys a one-click service template (`type` is the catalog slug, e.g. `cloudflared`). Set `INSTANT_DEPLOY=false` to skip auto-deploy. After create, use `set-envs.sh` to populate template env vars (e.g. tunnel token). |
 | `set-envs.sh` | `<app-uuid> <env-file>` | status (reads file, never exposes values) |
 | `update-app-domain.sh` | `<app-uuid> <fqdn>` | status |
 | `get-deployment-status.sh` | `<app-uuid>` | status string (`queued`, `in_progress`, `finished`, `failed`) or `none` if no deployments yet |
