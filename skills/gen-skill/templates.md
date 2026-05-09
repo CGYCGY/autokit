@@ -54,6 +54,110 @@ CONFIG_FILE: path/to/config
 - Confirm output location
 ```
 
+## Toolkit Skill (Tools Only — No Workflow/Cookbook)
+
+Use when the skill is a thin router over executable scripts, with no per-tool branching logic in prose.
+
+```markdown
+---
+name: skill-name
+description: <what it does> during development. Use when user says "<trigger>", "/skill-name <input>".
+argument-hint: <input> [--tool <name>]
+allowed-tools: Bash, Read, Write
+user-invocable: true
+---
+
+# Skill Title
+
+## Purpose
+
+One-liner.
+
+## Variables
+
+USER_INPUT: $ARGUMENTS
+
+### Flags
+- `--tool`: Which tool to run (default: `<first-tool>`)
+
+## Tools
+
+### tool-a
+- **Run:** `uv run tools/tool_a.py --input "$INPUT"`
+- **Args:** `input (str, required)`
+- **Does:** What tool A does in one line.
+- **Triggers:** "do thing A", "run a"
+
+### tool-b
+- **Run:** `uv run tools/tool_b.py`
+- **Args:** none
+- **Does:** What tool B does in one line.
+- **Triggers:** "do thing B"
+
+## Supporting Files
+
+- `tools/tool_a.py` - Implementation of tool-a (run with uv)
+- `tools/tool_b.py` - Implementation of tool-b (run with uv)
+
+## Report
+
+- Show which tool ran and the args used
+- Show tool's stdout
+- Surface non-zero exit clearly
+```
+
+## Hybrid Skill (Tools + Workflow)
+
+Use when tools are invoked from sequential phases.
+
+```markdown
+---
+name: skill-name
+description: <what it does>. Use when user says "<trigger>".
+allowed-tools: Bash, Read, Write
+user-invocable: true
+---
+
+# Skill Title
+
+## Purpose
+
+One-liner.
+
+## Tools
+
+### build
+- **Run:** `bun run tools/build.ts`
+- **Args:** none
+- **Does:** Compiles the project.
+- **Triggers:** "build"
+
+### deploy
+- **Run:** `bash tools/deploy.sh "$ENV"`
+- **Args:** `env (str, required) — staging|prod`
+- **Does:** Pushes built artifacts to the target env.
+- **Triggers:** "deploy", "push"
+
+## Workflow
+
+### Phase 1: Build
+1. Run `build` tool
+2. Verify exit code 0
+
+### Phase 2: Deploy
+1. Run `deploy` tool with the user-supplied env
+2. Tail deploy logs until "OK"
+
+## Supporting Files
+
+- `tools/build.ts` - Build script (run with Bun)
+- `tools/deploy.sh` - Deploy script (run with bash)
+
+## Report
+
+- Show which phase reached, which tools fired, and final status
+```
+
 ## Full Skill (Flags + Supporting Files)
 
 ```markdown

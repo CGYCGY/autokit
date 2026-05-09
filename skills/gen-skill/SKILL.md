@@ -50,9 +50,10 @@ USER_INPUT: $ARGUMENTS
 Evaluate the user's idea and include only relevant sections:
 
 - **Variables**: Include when idea mentions configurable options, models, flags, toggles, settings
-- **Instructions**: Include when idea has rules, constraints, conditions, decision logic
-- **Workflow**: Include when idea has sequential steps, process flow, phases
-- **Cookbook**: Include when idea has multiple tools, paths, modes, conditional branches
+- **Instructions**: Include when idea has rules that override LLM defaults or encode non-obvious project facts (e.g. "always run from project root", "do not summarize tool output"). Skip when the rule is something a competent agent would do anyway.
+- **Tools**: Include when the skill invokes executable scripts (py/ts/sh/bun). Each tool gets one entry with its call signature. Cookbook routes and Workflow phases reference these by name.
+- **Workflow**: Include when there are sequential steps, process flow, phases. Phases MAY reference Tools by name.
+- **Cookbook**: Include when there are conditional branches the agent picks between. Routes MAY reference Tools by name.
 
 ### Subsection Formatting
 
@@ -65,9 +66,22 @@ Every cookbook route must follow:
 ```
 ### Route Name
 - **IF:** <condition>
-- **THEN:** <action>
+- **THEN:** <action> (MAY reference a tool by name, e.g. "run `build` tool with --release")
 - **EXAMPLES:** <trigger phrases>
 ```
+
+### Tools Format (Fixed)
+
+Every tool entry must follow:
+```
+### tool-name
+- **Run:** `<exact command with placeholders for args>`
+- **Args:** `<arg-name> (<type>, required|optional)` — repeat per arg, or `none`
+- **Does:** <one sentence>
+- **Triggers:** "<phrase>", "<phrase>"
+```
+
+The actual implementation lives in `tools/<name>.<py|ts|sh>`.
 
 ### Supporting Directories
 
@@ -88,6 +102,7 @@ Create only when needed. Do not create empty directories or directories with few
 - Do not duplicate what the description already says
 - Do not create empty supporting directories
 - Do not dump all supporting files into one directory type (match dir to content type)
+- Do not re-declare a tool's invocation inside Cookbook routes or Workflow phases — define it once in the Tools section and reference by name
 
 ## Workflow
 
@@ -96,12 +111,16 @@ Create only when needed. Do not create empty directories or directories with few
 1. Parse user arguments for skill idea and flags (`--file`, `--simple`, `--output`)
 2. Determine operation: create or update
 3. For updates: read existing `.claude/skills/<skill-name>/SKILL.md`
-4. If idea is vague, ask user to clarify each missing dimension explicitly:
+4. Scan recent conversation for context the user implicitly references:
+   - Phrases like "what we discussed", "as before", "the same way", "what i said earlier" → look back through prior turns
+   - Look for: language/runtime choices (uv, bun, bash, python), file/path constraints, architectural decisions, things the user explicitly rejected, format preferences
+   - Treat anything found as a HARD constraint on the generated skill
+5. If idea is still vague after the conversation scan, ask user to clarify each missing dimension explicitly:
    - **Purpose**: what specific problem does this skill solve?
    - **Triggers**: what would the user say to invoke it?
    - **Inputs**: what information does the skill need?
    - **Outputs**: files, terminal output, both?
-   - **Modes**: one execution path, or multiple (cookbook routes)?
+   - **Tools vs Procedures**: does the skill invoke executable scripts (Tools) or have the agent follow prose steps (Cookbook/Workflow), or both?
    Do not generate until Purpose and Triggers are clear.
 
 ### Phase 2: Load References
@@ -156,6 +175,18 @@ Based on the user's idea, determine which sections to include:
 - **IF:** Idea has multiple modes, phases, templates, or extensive logic
 - **THEN:** Generate SKILL.md + supporting directories (cookbook/, prompts/, workflows/, etc.)
 - **EXAMPLES:** "create a skill that generates API documentation with multiple output formats"
+
+### Toolkit Skill (Tools Only)
+
+- **IF:** Idea describes one or more executable scripts (py/uv, ts/bun, sh/bash) with no prose-procedure branching, OR conversation scan reveals user wants real script files
+- **THEN:** Generate SKILL.md with a Tools section (no Workflow, no Cookbook), plus a `tools/` directory with stub script files in the requested runtime. Use the Toolkit template from `templates.md`.
+- **EXAMPLES:** "create a test skill that calls service X via uv", "make me a toolkit for ops scripts"
+
+### Hybrid Skill (Tools + Workflow/Cookbook)
+
+- **IF:** Idea has executable scripts AND sequential phases or conditional branches
+- **THEN:** Generate SKILL.md with Tools section AND Workflow/Cookbook that reference tools by name. Use the Hybrid template from `templates.md`.
+- **EXAMPLES:** "create a deploy skill that builds then pushes", "skill that lints with rustfmt or biome depending on file type"
 
 ### Update Existing Skill
 

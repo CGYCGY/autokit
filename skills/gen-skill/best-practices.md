@@ -92,14 +92,19 @@ SKILL.md is consumed by an AI agent, not read by humans. Every line must earn it
   - Use subsections for grouping related rules
   - Each instruction must be actionable (a rule the agent follows)
 
+- **Tools**: When the skill invokes executable scripts (py/ts/sh/bun)
+  - One entry per tool with the call signature (see Tools Format below)
+
 - **Workflow**: When the skill has sequential steps or phases
   - Number the phases
   - Each phase references supporting files if detailed
   - Keep phase descriptions to 2-5 lines in SKILL.md
+  - Phases MAY invoke Tools by name
 
-- **Cookbook**: When the skill handles multiple paths, modes, or conditional branches
+- **Cookbook**: When the skill picks between conditional branches
   - Fixed format per route (see below)
   - Routes are pattern-matched by the agent at runtime
+  - Routes MAY invoke Tools by name
 
 - **Report**: When the skill should produce a summary after execution
   - What to show the user when done
@@ -107,7 +112,7 @@ SKILL.md is consumed by an AI agent, not read by humans. Every line must earn it
 
 ### Section Order
 ```
-Purpose > Variables > Instructions > Workflow > Cookbook > Supporting Files > Report
+Purpose > Variables > Instructions > Tools > Workflow > Cookbook > Supporting Files > Report
 ```
 
 ## Subsection Rules
@@ -140,7 +145,29 @@ Every cookbook route follows this exact structure:
 - IF condition should be evaluable (file exists, flag set, pattern detected)
 - THEN should be actionable (run command, read file, generate output)
 - EXAMPLES should be natural phrases a user would say
+- THEN MAY reference a Tool by name (e.g. ``run `build` tool with --release``) — never restate the tool's call signature; the Tools section is the single source of truth
 - For complex routes, THEN can reference a supporting file: `**Read:** \`cookbook/route-name.md\``
+
+## Tools Format (Fixed)
+
+Every tool entry follows this exact structure:
+
+```markdown
+### tool-name
+- **Run:** `<exact command with placeholders for args>`
+- **Args:** `<arg-name> (<type>, required|optional)`
+- **Does:** <one sentence describing what the tool does>
+- **Triggers:** "<phrase user would say>", "<another phrase>"
+```
+
+### Rules
+- Tool name is hyphen-case, descriptive: `create-deposit`, not `tool1`
+- `Run:` is the exact shell command an agent should execute (e.g. `uv run tools/create_deposit.py --customer-name "$NAME"`)
+- `Args:` repeats per argument; for tools with no args, write `none`
+- `Does:` is one short sentence
+- `Triggers:` are natural phrases that should map to this tool
+- For tools with long signatures or many args, the entry MAY reference a supporting file: `**Read:** \`tools/<name>.md\``
+- Each tool's actual implementation lives in `tools/<name>.<py|ts|sh>` — see Supporting Directories
 
 ## Skill Focus & Scope
 
@@ -186,3 +213,6 @@ Create only when content justifies a separate file:
 - **Putting trigger terms in the body**: The `description` field handles activation. Body instructions are for execution.
 - **Creating skills that duplicate built-in commands**: Check if Claude Code already handles it natively.
 - **Using `agent: Plan` when skill writes files**: Plan agent is read-only. Use `general-purpose` or omit.
+- **Re-declaring tool invocations in Cookbook or Workflow bodies**: A tool's call signature lives in the Tools section, once. Routes and phases reference tools by name only — they do not restate the command, args, or arg parsing.
+- **Putting executable-script logic in a Cookbook procedure file**: If the work is `tools/foo.py`, write the script. Do not write a `cookbook/foo.md` that tells the agent to run inline Python via `python -c`.
+- **Writing argument-parsing instructions for skill input**: Skills are read by an LLM, not exec'd by a shell. `$ARGUMENTS` is a freeform sentence the agent interprets, not `argv`. The Tools section's `Args` field plus each tool's `Triggers` already tell the agent what to extract; an Argument Parsing / Input Resolution section restates default LLM behavior and adds noise. Only write parsing rules when the extraction is genuinely non-obvious (e.g. "treat any 36-char hex as `txn_no`, not `merchant_txn_no`").
