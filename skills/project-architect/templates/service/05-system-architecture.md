@@ -38,7 +38,7 @@ Chosen pattern: __
 
 ## Authentication
 
-Internal calls authenticated via shared secret OR a BetterAuth-issued JWT validated against shared secret / JWKS. Do not call BetterAuth directly from this service.
+Internal calls authenticated via shared secret OR a WorkOS-issued JWT validated against WorkOS's JWKS endpoint. Do not call the WorkOS Management API from this service on the hot path — pass the JWT from the caller and validate.
 
 ## Environments
 

@@ -10,7 +10,7 @@ Archetype: **App on Postgres** (Convex opt-out per §4). Picks below are default
 | Language | TypeScript (`strict: true`, `noUncheckedIndexedAccess: true`) | §3 |
 | Database | PostgreSQL | §4 |
 | ORM | Drizzle + Drizzle Kit (migrations checked into repo) | §4, §14 — never Prisma |
-| Auth | BetterAuth | §4 |
+| Auth | WorkOS (AuthKit) | §4 — unified sign-in across portfolio |
 | Server state | TanStack Query | §3 |
 | Validation | Zod | §3 |
 | Forms | React Hook Form + Zod resolver | §3 |
@@ -55,6 +55,6 @@ Archetype: **App on Postgres** (Convex opt-out per §4). Picks below are default
 | Lefthook | Git hooks (§3, §14 — never Husky) |
 | Vite or Bun build | Build tool (§3, §14 — never Webpack) |
 
-## BetterAuth + non-TS services
+## WorkOS JWTs in non-TS services
 
-BetterAuth lives in the Next.js app. Other-language services validate JWTs issued by BetterAuth via shared secret or JWKS. Do not call BetterAuth directly from Go/Python.
+WorkOS issues JWTs. Other-language services validate them via WorkOS's JWKS endpoint. Do not call the WorkOS Management API from Go/Python on the hot path — pass the JWT from the Next.js app and validate.

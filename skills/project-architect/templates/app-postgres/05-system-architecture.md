@@ -6,7 +6,7 @@
 flowchart LR
   Client[Next.js client] --> Server[Next.js server / route handlers]
   Server -- Drizzle --> DB[(PostgreSQL)]
-  Server -- BetterAuth --> Auth[Sessions]
+  Server -- WorkOS AuthKit --> Auth[Sessions]
   Server -- enqueue --> Jobs[trigger.dev / BullMQ]
   Jobs -- read/write --> DB
 ```
@@ -18,7 +18,7 @@ flowchart LR
 | Next.js client | UI, routing, SSR/RSC |
 | Next.js server / route handlers | API surface, auth checks, business logic |
 | Drizzle | DB access, schema, migrations |
-| BetterAuth | Session + identity |
+| WorkOS (AuthKit) | Session + identity |
 | Jobs runner | Background work (trigger.dev default) |
 | Valkey | Cache / queue when BullMQ in use; rate-limit store |
 
@@ -31,7 +31,7 @@ flowchart LR
 
 ## Authentication Flow
 
-BetterAuth issues sessions/JWTs. Server reads session in route handlers. For non-TS services, share secret or JWKS to validate JWTs (do not call BetterAuth directly from Go/Python).
+WorkOS AuthKit issues sessions/JWTs. Server reads session in route handlers via the WorkOS Node SDK. For non-TS services, validate JWTs against WorkOS's JWKS endpoint (do not call the WorkOS Management API from Go/Python on the hot path).
 
 ## Environments
 

@@ -19,7 +19,7 @@ flowchart LR
 | Convex mutations | Write paths; transactional |
 | Convex actions | External API calls, long-running work; called from mutations or scheduled |
 | Convex scheduled functions | Cron / delayed work |
-| Convex Auth | Session + identity |
+| WorkOS (AuthKit) | Session + identity (Convex validates WorkOS JWTs via configured issuer) |
 | Convex storage | File uploads, signed URLs |
 
 ## External Services
@@ -31,7 +31,7 @@ flowchart LR
 
 ## Authentication Flow
 
-Convex Auth. Identity available in every query/mutation/action via `ctx.auth.getUserIdentity()`. Authorization checks live inline in functions.
+WorkOS AuthKit issues JWTs. Convex validates them via the configured issuer in `convex/auth.config.ts` (WorkOS JWKS endpoint). Identity available in every query/mutation/action via `ctx.auth.getUserIdentity()`. Authorization checks live inline in functions.
 
 ## Environments
 

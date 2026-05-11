@@ -9,7 +9,7 @@ Archetype: **App on Convex**. Picks below are defaults per stack-rules. Do not d
 | Framework | Next.js (App Router) | §3 default for App archetype |
 | Language | TypeScript (`strict: true`, `noUncheckedIndexedAccess: true`) | §3 |
 | Backend / DB / Realtime / File storage | Convex | §3 — single-vendor for App archetype |
-| Auth | Convex Auth | §3 |
+| Auth | WorkOS (AuthKit) | §3 — unified sign-in across portfolio; Convex validates WorkOS JWTs via configured issuer |
 | Validation (inside Convex) | Convex validators (`v.*`) | §3 |
 | Validation (Next.js side) | Zod | §3 |
 | Forms | React Hook Form + Zod resolver | §3 |
