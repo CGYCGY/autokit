@@ -72,6 +72,7 @@ The rulebook does most of the deciding. Keep questions to the minimum needed to 
 3. **Defaults are rules.** Do not propose alternatives unless a §10 red flag fires. Do not hedge with "consider" language.
 4. **Polyglot only on §6 ecosystem trigger.** Otherwise the work belongs in Convex actions or the Next.js app.
 5. **No paid hosting, no paid infra unless explicitly approved.** Self-hosting is the default.
+6. **Latest stable on scaffold.** When scaffolding a new project, use the latest stable release of every named library/framework. Pinned major floors in templates (Next.js, Tailwind, Astro) are minimums — go newer if a newer stable is out. Verify current stable via context7 at write time before recording version floors. Canaries/RCs only when depending on a specific unreleased feature.
 
 ### Capability ladders (climb only on concrete trigger)
 

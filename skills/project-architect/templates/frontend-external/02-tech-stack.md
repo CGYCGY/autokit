@@ -6,7 +6,7 @@ Archetype: **Frontend on external API**. UI consumes an existing API (owned by a
 
 | Concern | Choice | Reason |
 |---|---|---|
-| Framework | Next.js (App Router) | §3 default |
+| Framework | Next.js 16+ (App Router) | §3 default |
 | Framework alternative | Vite + React + React Router | Acceptable when SSR/RSC not needed and routing is simple |
 | Language | TypeScript (`strict: true`, `noUncheckedIndexedAccess: true`) | §3 |
 | Server state | TanStack Query | §3 — required (no Convex reactivity available) |
@@ -14,7 +14,7 @@ Archetype: **Frontend on external API**. UI consumes an existing API (owned by a
 | Forms | React Hook Form + Zod resolver | §3 |
 | Frontend state | Zustand | §3 |
 | UI components | shadcn/ui | §3 |
-| Styling | Tailwind CSS | §3 |
+| Styling | Tailwind CSS v4+ | §3 |
 | Icons | Lucide | §3 |
 | Component variants | CVA | §3 |
 | Animation | Motion | §3 — only when needed |

@@ -6,10 +6,10 @@ Archetype: **Content site (Astro)**. Frontend-only — no backend in this repo. 
 
 | Concern | Choice | Reason |
 |---|---|---|
-| Framework | Astro | §5 default for Content archetype |
+| Framework | Astro v6+ | §5 default for Content archetype |
 | Language | TypeScript (`strict: true`) | §3 |
 | Content | Astro Content Collections + MDX | §5 |
-| Styling | Tailwind CSS | §5 |
+| Styling | Tailwind CSS v4+ | §5 |
 | Components (interactive islands) | React | §5 |
 | UI components (in islands) | shadcn/ui | §5 |
 | Icons (in islands) | Lucide | §3 |

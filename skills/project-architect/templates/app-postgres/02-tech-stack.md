@@ -6,7 +6,7 @@ Archetype: **App on Postgres** (Convex opt-out per §4). Picks below are default
 
 | Concern | Choice | Reason |
 |---|---|---|
-| Framework | Next.js (App Router) | §3 default for App archetype |
+| Framework | Next.js 16+ (App Router) | §3 default for App archetype |
 | Language | TypeScript (`strict: true`, `noUncheckedIndexedAccess: true`) | §3 |
 | Database | PostgreSQL | §4 |
 | ORM | Drizzle + Drizzle Kit (migrations checked into repo) | §4, §14 — never Prisma |
@@ -16,7 +16,7 @@ Archetype: **App on Postgres** (Convex opt-out per §4). Picks below are default
 | Forms | React Hook Form + Zod resolver | §3 |
 | Frontend state | Zustand | §3 |
 | UI components | shadcn/ui | §3 |
-| Styling | Tailwind CSS | §3 |
+| Styling | Tailwind CSS v4+ | §3 |
 | Icons | Lucide | §3 |
 | Component variants | CVA | §3 |
 | Animation | Motion | §3 — only when needed |
