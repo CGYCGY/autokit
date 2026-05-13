@@ -74,7 +74,11 @@ Evaluate the user's idea and include only relevant sections:
 1. Parse user arguments for agent idea and flags (`--file`, `--simple`, `--output`)
 2. Determine operation: create or update
 3. For updates: read existing `.claude/agents/<agent-name>.md`
-4. If idea is vague, ask user to clarify each missing dimension explicitly:
+4. Scan recent conversation for context the user implicitly references:
+   - Phrases like "what we discussed", "as before", "the same way", "what i said earlier" → look back through prior turns
+   - Look for: role/domain framing, delegation triggers, tool-access constraints, things the user explicitly rejected, output-format preferences
+   - Treat anything found as a HARD constraint on the generated agent
+5. If idea is still vague after the conversation scan, ask user to clarify each missing dimension explicitly:
    - **Role**: what is the agent's area of expertise?
    - **Delegation triggers**: when should Claude delegate to it?
    - **Capabilities**: read-only, or also makes changes?
