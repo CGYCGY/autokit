@@ -220,32 +220,80 @@ grep -rn "space-x-\|space-y-" --include="*.tsx" | wc -l
 grep -rn "gap-" --include="*.tsx" | wc -l
 ```
 
-### Extract Sentry RN Patterns
+### Extract Sentry Patterns (Universal — `sentry-conventions`)
 ```bash
-# Init location + presence
+# DSN handling
+grep -rEn "dsn:\s*['\"]https://[^$]" --include="*.ts" --include="*.tsx"   # anti-pattern: hardcoded DSN
+grep -rn "process\.env\.[A-Z_]*SENTRY[A-Z_]*DSN" --include="*.ts" --include="*.tsx"
+
+# tracesSampleRate philosophy
+grep -rB2 "tracesSampleRate:\s*1\.0" --include="*.ts" --include="*.tsx" | grep -v "__DEV__\|NODE_ENV"   # anti-pattern: prod 1.0
+
+# PII scrub
+grep -rn "beforeSend" --include="*.ts" --include="*.tsx"   # presence check
+grep -rn "Sentry\.setUser" --include="*.ts" --include="*.tsx" | grep -Ei "email|name|phone"   # anti-pattern: PII in setUser
+
+# Capture coverage
+grep -rn "Sentry\.captureException\|Sentry\.captureMessage" --include="*.ts" --include="*.tsx" | wc -l
+grep -rEn "catch\s*\(.*\)\s*\{" --include="*.ts" --include="*.tsx" | head -20   # spot-check vs capture count
+
+# Flush before exit
+grep -rn "Sentry\.flush" --include="*.ts" --include="*.tsx"
+```
+
+### Extract Sentry RN Patterns (Extension — `sentry-rn`)
+```bash
+# Init location (should be top-level in root entry, not in a hook)
 grep -rB2 "Sentry\.init" --include="*.tsx" --include="*.ts" | head -20
 
-# Routing instrumentation
-grep -rn "reactNavigationIntegration\|routingInstrumentation" --include="*.ts" --include="*.tsx"
-
-# Root wrap
+# Root wrap (RN-specific)
 grep -rn "Sentry\.wrap" --include="*.tsx"
 
-# Anti-pattern: hardcoded DSN
-grep -rEn "dsn:\s*['\"]https://[^$]" --include="*.ts" --include="*.tsx"
+# Routing instrumentation (works for expo-router via reactNavigationIntegration)
+grep -rn "reactNavigationIntegration\|routingInstrumentation" --include="*.ts" --include="*.tsx"
 
-# Anti-pattern: tracesSampleRate 1.0 without __DEV__ guard
-grep -rB2 "tracesSampleRate:\s*1\.0" --include="*.ts" --include="*.tsx" | grep -v "__DEV__"
-
-# PII scrubbing presence
-grep -rn "beforeSend" --include="*.ts" --include="*.tsx"
-
-# captureException coverage
-grep -rn "Sentry\.captureException\|Sentry\.captureMessage" --include="*.ts" --include="*.tsx" | wc -l
-
-# Sourcemap upload config
+# Sourcemap upload config (Expo plugin + EAS env)
 grep "SENTRY_AUTH_TOKEN" eas.json .env* 2>/dev/null
 grep "@sentry/react-native/expo" app.json app.config.* 2>/dev/null
+
+# Build target signal — Sentry needs native modules (Dev Client, not Expo Go)
+test -f eas.json && grep -A2 "developmentClient" eas.json
+```
+
+### Extract PostHog Patterns (Universal — `posthog-conventions`)
+```bash
+# API key handling
+grep -rEn "apiKey:\s*['\"]phc_" --include="*.ts" --include="*.tsx"   # anti-pattern: hardcoded key
+grep -rn "process\.env\.[A-Z_]*POSTHOG[A-Z_]*KEY" --include="*.ts" --include="*.tsx"
+
+# Identify / reset lifecycle
+grep -rn "\.identify(" --include="*.ts" --include="*.tsx"   # spot-check distinct_id source (id, not email)
+grep -rn "\.reset(" --include="*.ts" --include="*.tsx"      # presence on logout path
+
+# Event naming convention (verb_object snake_case)
+grep -rEn "\.capture\(['\"][a-zA-Z]" --include="*.ts" --include="*.tsx" | head -20
+
+# Feature flags
+grep -rn "isFeatureEnabled\|getFeatureFlag\|onFeatureFlags\|bootstrap" --include="*.ts" --include="*.tsx"
+
+# Groups (B2B / multi-tenant)
+grep -rn "\.group(\|groups:" --include="*.ts" --include="*.tsx"
+```
+
+### Extract PostHog RN Patterns (Extension — `posthog-rn`)
+```bash
+# Provider placement (should be in root layout)
+grep -rn "PostHogProvider" --include="*.tsx"
+find app/_layout.tsx 2>/dev/null && grep -l "PostHogProvider" app/_layout.tsx
+
+# Autocapture flags spelled out?
+grep -rn "captureLifecycleEvents\|captureScreens\|captureTouches" --include="*.tsx"
+
+# usePostHog hook usage
+grep -rn "usePostHog\(\)" --include="*.tsx" | wc -l
+
+# Storage adapter (AsyncStorage default vs MMKV custom)
+grep -rn "customStorage" --include="*.tsx"
 ```
 
 ### Extract Convex Patterns
@@ -410,12 +458,14 @@ test -f convex/schema.ts && echo "convex schema defined"
 
 ### Detect Observability
 ```bash
-# Sentry RN
-grep "\"@sentry/react-native\":" package.json
+# Sentry — conventions is universal; extension is platform-specific
+grep "\"@sentry/react-native\":" package.json    # → sentry-conventions + sentry-rn
+grep "\"@sentry/nextjs\":\|\"@sentry/node\":\|\"@sentry/browser\":" package.json   # → sentry-conventions only
 grep -rn "Sentry\.init" --include="*.ts" --include="*.tsx" | head -3
 
-# PostHog RN (no dedicated module yet — flag in conventions)
-grep "\"posthog-react-native\":" package.json
+# PostHog — same shape
+grep "\"posthog-react-native\":" package.json    # → posthog-conventions + posthog-rn
+grep "\"posthog-js\":\|\"posthog-node\":" package.json   # → posthog-conventions only
 grep -rn "PostHogProvider\|usePostHog" --include="*.tsx" | head -3
 ```
 

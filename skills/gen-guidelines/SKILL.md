@@ -45,7 +45,7 @@ Analyze codebase patterns or setup new project standards, generating a customize
 - **Forms / Validation**: React Hook Form + Zod
 - **Backend**: Convex (reactive, replaces ORM), REST/GraphQL + TanStack Query
 - **Auth**: WorkOS AuthKit, Clerk, Supabase Auth, custom (JWT + secure-store)
-- **Observability**: Sentry RN (`sentry-rn` module), PostHog RN (detection only, no module yet)
+- **Observability**: Sentry (`sentry-conventions` + `sentry-rn`), PostHog (`posthog-conventions` + `posthog-rn`)
 - **Tooling**: Bun, Biome, Lefthook (detected and noted in conventions)
 
 ### Cross-Stack Backend

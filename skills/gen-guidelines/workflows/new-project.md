@@ -425,8 +425,12 @@ Auth provider?
 ```
 Observability (optional)?
 
-[ ] Sentry React Native (crashes, performance)
-[ ] PostHog React Native (analytics, feature flags)
+[ ] Sentry (crashes, performance)
+    → adds: sentry-conventions + sentry-rn
+    → requires Dev Client (Sentry needs native modules; won't work in Expo Go)
+[ ] PostHog (analytics, feature flags)
+    → adds: posthog-conventions + posthog-rn
+    → works in Expo Go (pure JS)
 [ ] None
 
 >

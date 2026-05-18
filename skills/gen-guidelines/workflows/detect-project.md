@@ -161,9 +161,13 @@ grep "\"prisma\"\|\"typeorm\"\|\"@mikro-orm\|\"drizzle-orm\"" package.json
 
 **Observability (TypeScript / RN):**
 ```bash
-grep "\"@sentry/react-native\":" package.json   # sentry-rn module
-grep "\"@sentry/nextjs\":\|\"@sentry/node\":\|\"@sentry/browser\":" package.json   # web Sentry — no module yet
-grep "\"posthog-react-native\":" package.json   # no module yet — flag in conventions
+# Sentry — conventions module is universal; extension is platform-specific
+grep "\"@sentry/react-native\":" package.json   # → sentry-conventions + sentry-rn
+grep "\"@sentry/nextjs\":\|\"@sentry/node\":\|\"@sentry/browser\":" package.json   # → sentry-conventions only (web/node extension TBD)
+
+# PostHog — same shape
+grep "\"posthog-react-native\":" package.json   # → posthog-conventions + posthog-rn
+grep "\"posthog-js\":\|\"posthog-node\":" package.json   # → posthog-conventions only (web/node extension TBD)
 ```
 
 **Routing (TypeScript):**
@@ -302,8 +306,8 @@ grep -E "\"prisma\"|\"typeorm\"|\"@mikro-orm|\"drizzle-orm\"" package.json
 | Next.js (App Router) | `next` + `app/` | `nextjs-app-router`, `react-components`, `typescript-conventions`, styling module, validation module, ORM module, **`seeder-data`*** |
 | NestJS | `@nestjs/core` | `nestjs`, `typescript-conventions`, `zod-validation` or `class-validator`, ORM module, **`seeder-data`*** |
 | Express / Hono | `express` / `hono` | `typescript-conventions`, `zod-validation`, ORM module, **`seeder-data`*** |
-| React Native (Expo) | `react-native` + `expo` | `react-native-components`, `expo-router` (if present), `expo-conventions`, styling module, `rn-storage-crypto`, `typescript-conventions`, state/validation modules, `convex` (if present), `sentry-rn` (if present) |
-| React Native (bare) | `react-native`, no `expo` | `react-native-components`, `rn-storage-crypto`, `typescript-conventions`, state/validation modules, `sentry-rn` (if present) |
+| React Native (Expo) | `react-native` + `expo` | `react-native-components`, `expo-router` (if present), `expo-conventions`, styling module, `rn-storage-crypto`, `typescript-conventions`, state/validation modules, `convex` (if present), `sentry-conventions` + `sentry-rn` (if Sentry present), `posthog-conventions` + `posthog-rn` (if PostHog present) |
+| React Native (bare) | `react-native`, no `expo` | `react-native-components`, `rn-storage-crypto`, `typescript-conventions`, state/validation modules, `sentry-conventions` + `sentry-rn` (if Sentry present), `posthog-conventions` + `posthog-rn` (if PostHog present) |
 
 ### Mobile / RN Module Selection Rules
 
@@ -314,7 +318,9 @@ When mobile detected:
 - **Backend integration:** `convex` if `convex/` dir exists; otherwise standard validation/HTTP guidance
 - **Forms:** `zod-validation` if `zod` + `react-hook-form` both present
 - **State:** `zustand` if detected
-- **Observability:** `sentry-rn` if `@sentry/react-native` detected
+- **Observability:**
+  - `sentry-conventions` + `sentry-rn` if `@sentry/react-native` detected (conventions auto-pulled via `requires:`)
+  - `posthog-conventions` + `posthog-rn` if `posthog-react-native` detected (conventions auto-pulled via `requires:`)
 - **Auto-load:** `expo-conventions` whenever `expo` is present
 - **Do NOT load:** `react-components` (web variant), `tailwind-styling` (web variant), `nextjs-app-router`
 
