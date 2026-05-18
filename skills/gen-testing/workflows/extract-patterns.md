@@ -45,6 +45,17 @@ find . -name "*.test.ts" -o -name "*.spec.ts" | head -5
 
 **Common frameworks:** `jest`, `vitest`, `mocha`, `testing-library`
 
+### React Native / Expo (extra extractor)
+
+If `mobile: bare | managed | prebuild` was set during environment detection, **also** load `extractors/rn-test-extractors.md` after the TypeScript extractor.
+
+| `mobile` field | Load `rn-test-extractors.md`? |
+|----------------|-------------------------------|
+| `none` / unset | No — TS extractor only |
+| `bare` / `managed` / `prebuild` | Yes, in addition to TS extractor |
+
+The RN extractor covers the e2e layer (Detox, Maestro). Unit and component tests still come from the TypeScript extractor.
+
 ## Step 2: Extract Test File Organization
 
 ### Directory Structure

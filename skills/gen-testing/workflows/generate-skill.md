@@ -9,11 +9,23 @@ Generates the testing skill from extracted patterns and environment detection.
 ├── SKILL.md              # Main skill file
 ├── environment.md        # Test execution environment
 ├── patterns.md           # Test conventions
-├── database.md           # Test DB setup
-├── seed-data.md          # Test data management
+├── database.md           # Test DB setup        (skip if HAS_BACKEND_DB=false)
+├── seed-data.md          # Test data management (skip if HAS_BACKEND_DB=false)
+├── mobile-e2e.md         # Detox/Maestro guide  (only if IS_MOBILE=true)
 └── checklists/
     └── pre-test.md       # Pre-test checklist
 ```
+
+## Step 0: Compute Conditional Flags
+
+Before generating any file, derive these flags from the `detect-environment.md` JSON output:
+
+| Flag | Derivation | Effect |
+|------|-----------|--------|
+| `IS_MOBILE` | `mobile.platform != "none"` | Gates Step 7 (mobile-e2e.md) and the `mobile-e2e.md` entry in SKILL.md's Supporting Files |
+| `HAS_BACKEND_DB` | `database.type != null` | Gates Steps 5–6 (database.md, seed-data.md) and their entries in SKILL.md's Supporting Files |
+
+Apply these flags through every step below — do not generate files for skipped steps, and do not list skipped files in the generated SKILL.md.
 
 ## Step 1: Create Directory Structure
 
@@ -151,6 +163,9 @@ func TestCreateUser(t *testing.T) {
 
 ## Step 5: Generate database.md
 
+**Skip this step if `HAS_BACKEND_DB == false`.** Pure RN/Expo projects (or any project with no backend DB) do not need this file.
+
+
 ### Content Structure
 
 ```markdown
@@ -209,6 +224,9 @@ docker-compose exec db createdb -U postgres app_test
 
 ## Step 6: Generate seed-data.md
 
+**Skip this step if `HAS_BACKEND_DB == false`** (must skip whenever Step 5 was skipped).
+
+
 ### Content Structure
 
 ```markdown
@@ -261,7 +279,53 @@ internal/user/
 ```
 ```
 
-## Step 7: Generate checklists/pre-test.md
+## Step 7: Generate mobile-e2e.md
+
+**Skip this step if `IS_MOBILE == false`.** Use the `## mobile-e2e.md Template` block in `templates/testing-skill.template.md`.
+
+### Content Structure
+
+```markdown
+# Mobile E2E Tests
+
+## Project
+[Workflow, platforms, bundle IDs]
+
+## testID Convention
+[Style + shape, with rationale]
+
+## Detox             (only if Detox detected)
+[Configurations, build, run, matcher style, example]
+
+## Maestro           (only if Maestro detected)
+[Flow location, run, selector style, example]
+
+## Simulator / Emulator Boot
+[iOS + Android commands]
+
+## Mocking Strategy
+[Approach, optional setup example]
+
+## CI Integration
+[Binary build, runner, device farm]
+
+## Troubleshooting
+[Per-framework fixes]
+```
+
+### Conditional Rules
+
+| Block | Include when |
+|-------|--------------|
+| `{{#if DETOX}}` | `detox` in `package.json` or `.detoxrc.*` found |
+| `{{#if MAESTRO}}` | `.maestro/` found or `maestro test` referenced in CI |
+| `{{#if MOBILE_MOCK_APPROACH}}` | a mocking approach was extracted |
+
+### Empty-Framework Fallback
+
+If `IS_MOBILE == true` but neither Detox nor Maestro was detected, emit only the Project + testID Convention sections, plus a note: `> No e2e framework detected — recommend adding Detox or Maestro.`
+
+## Step 8: Generate checklists/pre-test.md
 
 ```markdown
 # Pre-Test Checklist

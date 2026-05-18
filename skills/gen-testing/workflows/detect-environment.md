@@ -5,9 +5,10 @@ Detects the development environment to generate correct test execution commands.
 ## Detection Order
 
 1. Containerization
-2. Database
-3. Test Commands
-4. Ask User (if unclear)
+2. Mobile platform (RN / Expo)
+3. Database
+4. Test Commands
+5. Ask User (if unclear)
 
 ## Step 1: Detect Containerization
 
@@ -44,7 +45,36 @@ ls .devcontainer/devcontainer.json 2>/dev/null
 ### No Containerization
 If none found, environment is local.
 
-## Step 2: Detect Database
+## Step 2: Detect Mobile Platform (RN / Expo)
+
+Mobile projects need a different e2e extractor path. Check before continuing.
+
+### React Native CLI (bare)
+```bash
+grep -E '"react-native":' package.json
+ls ios/ android/ 2>/dev/null
+ls react-native.config.js 2>/dev/null
+```
+
+### Expo
+```bash
+grep -E '"expo":' package.json
+ls app.json app.config.js app.config.ts 2>/dev/null
+ls eas.json 2>/dev/null
+```
+
+### Decision
+
+| Detected | Action |
+|----------|--------|
+| `react-native` dep + `ios/` + `android/` | Mark `mobile: bare`, load `extractors/rn-test-extractors.md` in pattern phase |
+| `expo` dep + `app.json`, no native dirs | Mark `mobile: managed`, load `extractors/rn-test-extractors.md` |
+| `expo` dep + native dirs (prebuild) | Mark `mobile: prebuild`, load `extractors/rn-test-extractors.md` |
+| None of the above | Mark `mobile: none`, skip RN extractor |
+
+**Containerization note:** Docker-compose is irrelevant for the mobile e2e layer — Detox/Maestro require a real simulator or device. If `mobile: *` is set, do not wrap mobile e2e commands in `docker-compose exec`. (Unit/component tests via Jest can still run in a container if one exists.)
+
+## Step 3: Detect Database
 
 ### From Docker Compose
 Search docker-compose for database images:
@@ -83,7 +113,7 @@ grep -r "postgres\|mysql\|mongodb" . --include="*.ts" --include="*.json" | head 
 | Prisma | `prisma/schema.prisma` datasource |
 | TypeORM | `ormconfig.json` or `data-source.ts` |
 
-## Step 3: Detect Test Commands
+## Step 4: Detect Test Commands
 
 ### Makefile
 ```bash
@@ -110,7 +140,7 @@ cat .github/workflows/*.yml | grep -E "npm test|pytest|go test" 2>/dev/null
 cat .gitlab-ci.yml | grep -E "npm test|pytest|go test" 2>/dev/null
 ```
 
-## Step 4: Ask User If Unclear
+## Step 5: Ask User If Unclear
 
 If any detection fails, present what was found and ask:
 
@@ -147,6 +177,10 @@ After detection, record:
     "appService": "app",
     "dbService": "db"
   },
+  "mobile": {
+    "platform": "none",
+    "e2eFrameworks": []
+  },
   "database": {
     "type": "postgresql",
     "host": "db",
@@ -158,6 +192,16 @@ After detection, record:
   }
 }
 ```
+
+For an RN/Expo project the mobile block would look like:
+```json
+"mobile": {
+  "platform": "managed",
+  "e2eFrameworks": ["maestro"]
+}
+```
+
+`platform` values: `bare | managed | prebuild | none` (must match the decision table in Step 2).
 
 ## Next Step
 

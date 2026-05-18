@@ -86,8 +86,13 @@ Runs and manages tests for this project. Provides test execution commands, patte
 
 - `environment.md` - Test execution environment details
 - `patterns.md` - Test conventions and examples
+{{#if HAS_BACKEND_DB}}
 - `database.md` - Test database setup
 - `seed-data.md` - Test data management
+{{/if}}
+{{#if IS_MOBILE}}
+- `mobile-e2e.md` - Detox/Maestro commands and testID conventions
+{{/if}}
 - `checklists/pre-test.md` - Prerequisites checklist
 ```
 
@@ -346,6 +351,150 @@ From `{{EXAMPLE_FILE}}`:
 {{CLEANUP_SUITE}}
 ```
 
+## mobile-e2e.md Template
+
+```markdown
+# Mobile E2E Tests
+
+## Project
+
+- **Workflow:** {{MOBILE_WORKFLOW}}  (bare / managed / prebuild)
+- **Platforms:** {{MOBILE_PLATFORMS}}  (iOS, Android)
+- **App ID (iOS):** {{IOS_BUNDLE_ID}}
+- **App ID (Android):** {{ANDROID_PACKAGE}}
+
+## testID Convention
+
+**Style:** {{TESTID_STYLE}}  (kebab-case / camelCase / hierarchical)
+**Shape:** {{TESTID_SHAPE}}  (e.g. `screen-element`)
+
+Always set `testID` on interactive components. Both Detox (`by.id`) and Maestro (`id:`) match against it.
+
+{{#if DETOX}}
+## Detox
+
+### Configurations
+{{DETOX_CONFIGURATIONS}}  (e.g. `ios.sim.debug`, `android.emu.release`)
+
+### Build
+```bash
+detox build -c {{DETOX_DEFAULT_CONFIG}}
+```
+
+### Run
+```bash
+# All e2e tests
+detox test -c {{DETOX_DEFAULT_CONFIG}}
+
+# Single file
+detox test -c {{DETOX_DEFAULT_CONFIG}} {{DETOX_TEST_DIR}}/login.test.ts
+
+# Headless (CI)
+detox test -c {{DETOX_DEFAULT_CONFIG}} --headless
+```
+
+### Test File Location
+`{{DETOX_TEST_DIR}}/` (typically `e2e/`)
+
+### Matcher Style
+Project uses `by.id` predominantly. Avoid `by.text` (locale-fragile) unless testing copy.
+
+### Example
+From `{{DETOX_EXAMPLE_FILE}}`:
+```typescript
+{{DETOX_EXAMPLE_CODE}}
+```
+{{/if}}
+
+{{#if MAESTRO}}
+## Maestro
+
+### Flow Location
+`{{MAESTRO_FLOW_DIR}}/` (typically `.maestro/`)
+
+### Run
+```bash
+# All flows
+maestro test {{MAESTRO_FLOW_DIR}}/
+
+# Single flow
+maestro test {{MAESTRO_FLOW_DIR}}/login.yaml
+```
+
+### Selector Style
+Project uses `id:` (matches `testID`) predominantly.
+
+### Example
+From `{{MAESTRO_EXAMPLE_FILE}}`:
+```yaml
+{{MAESTRO_EXAMPLE_CODE}}
+```
+{{/if}}
+
+## Simulator / Emulator Boot
+
+### iOS
+```bash
+{{IOS_BOOT_COMMAND}}
+```
+
+### Android
+```bash
+{{ANDROID_BOOT_COMMAND}}
+```
+
+## Mocking Strategy
+
+**Approach:** {{MOBILE_MOCK_APPROACH}}  (MSW with __DEV__ guard / launchApp with mock URL / local mock server / none)
+
+{{#if MOBILE_MOCK_APPROACH}}
+### Setup
+```typescript
+{{MOBILE_MOCK_EXAMPLE}}
+```
+{{/if}}
+
+## CI Integration
+
+- **Binary build:** {{MOBILE_BUILD_PIPELINE}}  (EAS / Fastlane / local)
+- **Runner:** {{MOBILE_CI_RUNNER}}  (GitHub Actions macos-latest / Bitrise / etc.)
+- **Device farm:** {{MOBILE_DEVICE_FARM}}  (BrowserStack / Sauce Labs / none — local only by default)
+
+## Troubleshooting
+
+### Detox: "App not installed"
+- Rebuild: `detox build -c {{DETOX_DEFAULT_CONFIG}}`
+- Verify `binaryPath` in `.detoxrc` matches the build output
+
+### Detox: Flaky state between tests
+```typescript
+beforeEach(async () => {
+  await device.launchApp({ newInstance: true });  // fresh instance per test
+});
+```
+
+### Maestro: Element not found
+- Verify `testID` is set on the component
+- Inspect the live element tree: `maestro studio`
+
+### Maestro: Driver startup timeout in CI
+```bash
+export MAESTRO_DRIVER_STARTUP_TIMEOUT=180000  # default too low on cold runners
+maestro test {{MAESTRO_FLOW_DIR}}/
+```
+
+### iOS simulator won't boot
+```bash
+xcrun simctl shutdown booted
+xcrun simctl erase booted  # avoid 'erase all' — wipes every simulator
+```
+
+### Android emulator stuck
+```bash
+adb kill-server && adb start-server
+```
+```
+
 ## checklists/pre-test.md Template
 
 ```markdown
@@ -407,3 +556,26 @@ Run through this checklist before executing tests.
 | `{{STRUCTURE_PATTERN}}` | extract-patterns | `Table-driven tests` |
 | `{{MOCK_APPROACH}}` | extract-patterns | `Interface-based mocks` |
 | `{{FIXTURE_PATTERN}}` | extract-patterns | `JSON files in testdata/` |
+| `{{IS_MOBILE}}` | detect-environment | `true` when `mobile != none` |
+| `{{HAS_BACKEND_DB}}` | detect-environment | `true` when `database.type != null` |
+| `{{MOBILE_WORKFLOW}}` | detect-environment | `bare`, `managed`, `prebuild` |
+| `{{MOBILE_PLATFORMS}}` | detect-environment | `iOS, Android` |
+| `{{IOS_BUNDLE_ID}}` | rn-test-extractors | `com.example.myapp` |
+| `{{ANDROID_PACKAGE}}` | rn-test-extractors | `com.example.myapp` |
+| `{{IOS_BOOT_COMMAND}}` | rn-test-extractors | `xcrun simctl boot "iPhone 15"` |
+| `{{ANDROID_BOOT_COMMAND}}` | rn-test-extractors | `emulator -avd Pixel_7_API_34` |
+| `{{DETOX_DEFAULT_CONFIG}}` | rn-test-extractors | `ios.sim.debug` |
+| `{{DETOX_CONFIGURATIONS}}` | rn-test-extractors | `ios.sim.debug, android.emu.release` |
+| `{{DETOX_TEST_DIR}}` | rn-test-extractors | `e2e` |
+| `{{DETOX_EXAMPLE_FILE}}` | rn-test-extractors | `e2e/login.test.ts:12` |
+| `{{DETOX_EXAMPLE_CODE}}` | rn-test-extractors | one canonical test from the project |
+| `{{MAESTRO_FLOW_DIR}}` | rn-test-extractors | `.maestro` |
+| `{{MAESTRO_EXAMPLE_FILE}}` | rn-test-extractors | `.maestro/login.yaml` |
+| `{{MAESTRO_EXAMPLE_CODE}}` | rn-test-extractors | one canonical flow from the project |
+| `{{TESTID_STYLE}}` | rn-test-extractors | `kebab-case`, `camelCase`, `hierarchical` |
+| `{{TESTID_SHAPE}}` | rn-test-extractors | `screen-element`, `LoginScreen.EmailInput` |
+| `{{MOBILE_MOCK_APPROACH}}` | rn-test-extractors | `MSW with __DEV__ guard` |
+| `{{MOBILE_MOCK_EXAMPLE}}` | rn-test-extractors | code excerpt of the mock setup |
+| `{{MOBILE_BUILD_PIPELINE}}` | rn-test-extractors | `EAS`, `Fastlane`, `local` |
+| `{{MOBILE_CI_RUNNER}}` | rn-test-extractors | `GitHub Actions macos-latest` |
+| `{{MOBILE_DEVICE_FARM}}` | rn-test-extractors | `BrowserStack`, `Sauce Labs`, `none` |
