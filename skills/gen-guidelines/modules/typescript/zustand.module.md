@@ -85,6 +85,10 @@ set(state => ({ config: { ...state.config, nested: newValue } }))  // ❌ If nes
 set({ config: structuredClone(newConfig) })  // ✅
 ```
 
+## React Native Persistence
+
+On RN, swap the default localStorage backend for MMKV — sync, JSI-backed, no async bridge. See `rn-storage-crypto.module.md` for the full storage decision matrix and the `mmkvStorage` adapter snippet. **Never persist tokens via zustand+MMKV** — use `expo-secure-store` directly.
+
 ## Store Template
 
 ```typescript

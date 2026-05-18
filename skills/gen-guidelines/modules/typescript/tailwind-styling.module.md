@@ -3,7 +3,7 @@ module: tailwind-styling
 language: typescript
 category: styling
 requires: []
-conflicts: [styled-components, emotion, css-modules]
+conflicts: [styled-components, emotion, css-modules, nativewind-styling, tamagui-styling]
 ---
 
 # Tailwind CSS Module

@@ -132,6 +132,152 @@ grep -rn "z\\.infer<typeof" --include="*.ts"
 grep -rn "@Is.*(\|@Min(\|@Max(" --include="*.ts"
 ```
 
+### Extract React Native Patterns
+```bash
+# Primitive usage (RN-specific)
+grep -rn "<View\|<Text\|<Pressable\|<ScrollView\|<FlatList\|<SectionList\|<Image" --include="*.tsx" | head -20
+
+# Platform branching
+grep -rn "Platform\.OS\|Platform\.select" --include="*.tsx"
+find . -name "*.ios.tsx" -o -name "*.android.tsx" -o -name "*.native.tsx" 2>/dev/null
+
+# Legacy touchables (anti-pattern signal)
+grep -rn "<TouchableOpacity\|<TouchableHighlight\|<TouchableWithoutFeedback" --include="*.tsx"
+
+# Reanimated + Gesture Handler
+grep -rn "useSharedValue\|useAnimatedStyle\|runOnJS\|runOnUI\|'worklet'" --include="*.tsx"
+grep -rn "Gesture\.\|GestureDetector" --include="*.tsx"
+
+# Safe area pattern
+grep -rn "useSafeAreaInsets\|SafeAreaView\|SafeAreaProvider" --include="*.tsx"
+
+# List perf signals
+grep -rn "keyExtractor=\|renderItem=" --include="*.tsx" | head -10
+grep -rn "<ScrollView" --include="*.tsx" -A5 | grep "\.map(" | head -5  # ScrollView+map anti-pattern
+```
+
+### Extract Expo Router Patterns
+```bash
+# File-based route inventory
+find app/ -name "*.tsx" 2>/dev/null | sort
+
+# Special files
+find app/ -name "_layout.tsx" -o -name "+not-found.tsx" -o -name "+html.tsx" 2>/dev/null
+
+# Route groups / dynamic segments
+find app/ -type d -name "(*)" 2>/dev/null         # groups
+find app/ -name "\[*\].tsx" 2>/dev/null            # dynamic
+find app/ -name "\[\.\.\.*\].tsx" 2>/dev/null     # catch-all
+
+# Navigator types in layouts
+grep -rn "<Stack\b\|<Tabs\b\|<Drawer\b\|<Slot\b" app/ --include="_layout.tsx"
+
+# Search params consumption
+grep -rn "useLocalSearchParams\|useGlobalSearchParams\|useSegments\|useRouter\|usePathname" --include="*.tsx"
+
+# Typed routes flag
+grep -rn "typedRoutes" app.json app.config.* 2>/dev/null
+```
+
+### Extract Tamagui Patterns
+```bash
+# Tamagui import surface
+grep -rn "from ['\"]tamagui['\"]\|from ['\"]@tamagui/" --include="*.ts" --include="*.tsx" | head -10
+
+# styled() definitions
+grep -rn "styled(" --include="*.tsx" | grep -v node_modules
+
+# Token-discipline check (tokens vs raw)
+echo "Token refs:"; grep -rEn "\\\$(color|space|size|radius|font|shadowColor)" --include="*.tsx" | wc -l
+echo "Raw hex/rgb in JSX:"; grep -rEn "color=['\"]?#|bg=['\"]?#|backgroundColor:[[:space:]]*['\"]?#" --include="*.tsx" | wc -l
+
+# StyleSheet leakage in a Tamagui project
+grep -rn "StyleSheet\.create" --include="*.tsx" | grep -v node_modules
+
+# Theme + media
+grep -rn "useTheme\|useThemeName\|useMedia" --include="*.tsx"
+```
+
+### Extract NativeWind Patterns
+```bash
+# className adoption on RN primitives
+grep -rn "className=" --include="*.tsx" | wc -l
+
+# cn() utility
+grep -rn "export function cn\|export const cn" --include="*.ts"
+
+# Platform-prefix usage
+grep -rEn "(ios|android|web|native):" --include="*.tsx" | head -10
+
+# hover: anti-pattern (no-op on mobile)
+grep -rEn "hover:|group-hover:" --include="*.tsx" | head -5
+
+# Arbitrary color anti-pattern
+grep -rEn "(bg|text|border)-\[#" --include="*.tsx" | head -5
+
+# space-* vs gap-* on RN
+grep -rn "space-x-\|space-y-" --include="*.tsx" | wc -l
+grep -rn "gap-" --include="*.tsx" | wc -l
+```
+
+### Extract Sentry RN Patterns
+```bash
+# Init location + presence
+grep -rB2 "Sentry\.init" --include="*.tsx" --include="*.ts" | head -20
+
+# Routing instrumentation
+grep -rn "reactNavigationIntegration\|routingInstrumentation" --include="*.ts" --include="*.tsx"
+
+# Root wrap
+grep -rn "Sentry\.wrap" --include="*.tsx"
+
+# Anti-pattern: hardcoded DSN
+grep -rEn "dsn:\s*['\"]https://[^$]" --include="*.ts" --include="*.tsx"
+
+# Anti-pattern: tracesSampleRate 1.0 without __DEV__ guard
+grep -rB2 "tracesSampleRate:\s*1\.0" --include="*.ts" --include="*.tsx" | grep -v "__DEV__"
+
+# PII scrubbing presence
+grep -rn "beforeSend" --include="*.ts" --include="*.tsx"
+
+# captureException coverage
+grep -rn "Sentry\.captureException\|Sentry\.captureMessage" --include="*.ts" --include="*.tsx" | wc -l
+
+# Sourcemap upload config
+grep "SENTRY_AUTH_TOKEN" eas.json .env* 2>/dev/null
+grep "@sentry/react-native/expo" app.json app.config.* 2>/dev/null
+```
+
+### Extract Convex Patterns
+```bash
+# Convex install + dir
+grep "\"convex\":" package.json
+test -d convex && ls -la convex/
+
+# Schema
+test -f convex/schema.ts && grep -n "defineTable\|\\.index(" convex/schema.ts
+
+# Function classification
+echo "Queries:"; grep -rn "= query(" convex/ --include="*.ts" 2>/dev/null | wc -l
+echo "Mutations:"; grep -rn "= mutation(" convex/ --include="*.ts" 2>/dev/null | wc -l
+echo "Actions:"; grep -rn "= action(" convex/ --include="*.ts" 2>/dev/null | wc -l
+echo "Internal:"; grep -rn "internalQuery\|internalMutation\|internalAction" convex/ --include="*.ts" 2>/dev/null | wc -l
+
+# Validator coverage
+grep -rn "args: {" convex/ --include="*.ts" | wc -l
+grep -rn "returns:" convex/ --include="*.ts" | wc -l
+
+# Anti-patterns
+grep -rn "v\\.string()" convex/ --include="*.ts" | grep -i "id\b"   # FK as string instead of v.id()
+grep -rn "ctx\\.db\\.query.*\\.filter(" convex/ --include="*.ts"   # filter without index
+grep -rn "fetch(" convex/ --include="*.ts" | grep -v "action"      # fetch outside action
+grep -rn "ctx\\.auth\\.getUserIdentity" convex/ --include="*.ts" | head -5  # null check audit
+
+# Client consumption
+grep -rn "useQuery\|useMutation\|useAction\|usePaginatedQuery" --include="*.tsx" | head -10
+grep -rEn "useQuery\(.*['\"]skip['\"]" --include="*.tsx"  # skip pattern
+```
+
 ### Extract NestJS Patterns
 ```bash
 # Find modules
@@ -234,6 +380,60 @@ find . -type d -name "app" -path "*/src/app" -o -path "*/app"
 find . -name "next.config.*"
 ```
 
+### Detect React Native / Expo
+```bash
+# RN core
+grep "\"react-native\":" package.json
+
+# Expo (managed)
+grep "\"expo\":" package.json
+
+# Expo Router
+grep "\"expo-router\":" package.json
+
+# Config files
+find . -maxdepth 2 -name "app.json" -o -name "app.config.*" -o -name "metro.config.*"
+
+# Platform-specific files (strong RN signal)
+find . -name "*.ios.tsx" -o -name "*.android.tsx" -o -name "*.native.tsx" 2>/dev/null | head -5
+
+# EAS
+test -f eas.json && echo "EAS configured"
+```
+
+### Detect Convex
+```bash
+grep "\"convex\":" package.json
+test -d convex && echo "convex/ dir present"
+test -f convex/schema.ts && echo "convex schema defined"
+```
+
+### Detect Observability
+```bash
+# Sentry RN
+grep "\"@sentry/react-native\":" package.json
+grep -rn "Sentry\.init" --include="*.ts" --include="*.tsx" | head -3
+
+# PostHog RN (no dedicated module yet — flag in conventions)
+grep "\"posthog-react-native\":" package.json
+grep -rn "PostHogProvider\|usePostHog" --include="*.tsx" | head -3
+```
+
+### Detect Tooling (Bun / Biome — affects conventions doc)
+```bash
+test -f bun.lockb && echo "package manager: Bun"
+test -f pnpm-lock.yaml && echo "package manager: pnpm"
+test -f yarn.lock && echo "package manager: Yarn"
+test -f package-lock.json && echo "package manager: npm"
+
+test -f biome.json -o -f biome.jsonc && echo "linter/formatter: Biome"
+test -f .eslintrc.json -o -f .eslintrc.js -o -f eslint.config.js && echo "linter: ESLint"
+test -f .prettierrc -o -f .prettierrc.json && echo "formatter: Prettier"
+
+test -f lefthook.yml -o -f lefthook.yaml && echo "git hooks: Lefthook"
+test -d .husky && echo "git hooks: Husky"
+```
+
 ### Detect NestJS
 ```bash
 # Check for NestJS packages
@@ -260,9 +460,16 @@ grep "\"mobx\":" package.json
 
 ### Detect Styling
 ```bash
-# Tailwind CSS
+# Tailwind CSS (web)
 grep "\"tailwindcss\":" package.json
 find . -name "tailwind.config.*"
+
+# NativeWind (Tailwind for RN)
+grep "\"nativewind\":" package.json
+
+# Tamagui (RN + web style-props)
+grep "\"tamagui\":\|\"@tamagui/" package.json
+find . -name "tamagui.config.*"
 
 # Styled Components
 grep "\"styled-components\":" package.json

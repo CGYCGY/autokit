@@ -39,15 +39,17 @@ Guidelines type?
 2. Frontend
 3. Backend
 4. Full-stack
+5. Mobile (React Native)
 ```
 
-**If 2/3/4:** Set variables below, skip Step 5.
+**If 2/3/4/5:** Set variables below, skip Step 5.
 
 | Choice | SKILL_NAME | SKILL_TITLE | SKILL_SCOPE |
 |--------|------------|-------------|-------------|
 | 2 | frontend-guidelines | Frontend Development Guidelines | frontend |
 | 3 | backend-guidelines | Backend Development Guidelines | backend |
 | 4 | dev-guidelines | Development Guidelines | full-stack |
+| 5 | mobile-guidelines | Mobile Development Guidelines | mobile |
 
 ---
 
@@ -102,7 +104,9 @@ Select your framework:
 4. NestJS (Backend/Full-stack)
 5. Express (Backend → backend-guidelines)
 6. Hono (Backend → backend-guidelines)
-7. None / CLI application
+7. React Native + Expo (Mobile → mobile-guidelines, Recommended for new mobile)
+8. React Native (bare) (Mobile → mobile-guidelines)
+9. None / CLI application
 
 >
 ```
@@ -111,6 +115,7 @@ Select your framework:
 - **Next.js** → Always full-stack (`dev-guidelines`)
 - **React/Vue/Svelte** → Frontend (`frontend-guidelines`)
 - **Express/Hono** → Backend (`backend-guidelines`)
+- **React Native (Expo or bare)** → Mobile (`mobile-guidelines`)
 - **NestJS** → Ask: "Will this be API-only (backend) or include views/templates (full-stack)?"
   - API-only → `backend-guidelines`
   - With views → `dev-guidelines`
@@ -272,6 +277,52 @@ What architecture pattern will you follow?
 >
 ```
 
+**For TypeScript + React Native (Expo or bare):**
+```
+What routing approach?
+
+1. Expo Router (Recommended for Expo)
+   → File-based routing, deep linking, typed routes
+
+2. React Navigation
+   → Imperative navigator config (Stack/Tabs/Drawer)
+
+3. None / single screen
+   → Small utility apps
+
+>
+```
+
+```
+What styling library?
+
+1. Tamagui (Recommended for design systems + cross-platform)
+   → Compiled style props, themes, RN + web
+
+2. NativeWind
+   → Tailwind classes on RN primitives
+
+3. StyleSheet (built-in)
+   → No external dependency, manual styles
+
+>
+```
+
+```
+What state management?
+
+1. Zustand (Recommended for RN)
+   → Lightweight, sync, MMKV-persistable
+
+2. Redux Toolkit
+   → If team already knows Redux
+
+3. None / React state only
+   → For very small apps
+
+>
+```
+
 ### Step 7: Select ORM/Database (if applicable)
 
 **For Go:**
@@ -332,6 +383,51 @@ Select your database approach:
 3. Drizzle
 4. Knex.js
 5. No database
+
+>
+```
+
+**For TypeScript + React Native:**
+```
+How will the app talk to a backend?
+
+1. Convex (Recommended for greenfield - reactive, typed, no ORM)
+   → schema.ts + query/mutation/action; useQuery on client
+
+2. REST + TanStack Query
+   → Standard HTTP, fetch wrapper, Zod for response validation
+
+3. GraphQL + TanStack Query / urql / Apollo
+   → Typed schema via codegen
+
+4. Standalone / on-device only
+   → No remote backend
+
+>
+```
+
+```
+Auth provider?
+
+1. WorkOS AuthKit (Recommended)
+   → SSO, MFA, AuthKit SDK
+2. Clerk
+   → Pre-built UI components, good Expo integration
+3. Supabase Auth
+   → If using Supabase elsewhere
+4. Custom (JWT + secure-store)
+   → Manual implementation
+5. None
+
+>
+```
+
+```
+Observability (optional)?
+
+[ ] Sentry React Native (crashes, performance)
+[ ] PostHog React Native (analytics, feature flags)
+[ ] None
 
 >
 ```
@@ -444,6 +540,25 @@ Create starter templates? (yes/no)
 | **TS: Express** | Layered/MVC | Most common pattern |
 | **TS: Next.js** | App Router Convention | Next.js 13+ default |
 | **TS: Hono** | Simple/Flat | Edge/lightweight focus |
+| **TS: React Native + Expo** | Expo Router (file-based) | Expo's default; matches Next.js mental model |
+| **TS: React Native (bare)** | React Navigation + feature folders | When ejected or needs custom native |
+
+## React Native Default Module Bundle
+
+For a new RN + Expo project, the default recommended modules:
+
+```
+✓ general-principles
+✓ typescript-conventions
+✓ react-native-components
+✓ expo-router (if routing chosen)
+✓ expo-conventions
+✓ rn-storage-crypto      (assumes MMKV + secure-store for token + prefs)
+✓ {tamagui-styling | nativewind-styling}    (mutually exclusive; skip if StyleSheet-only)
+✓ zustand                (if state management chosen)
+✓ zod-validation         (always include — RHF+Zod is the RN default for forms)
+✓ convex                 (if backend=Convex)
+```
 
 ## Differences from Existing Project Mode
 

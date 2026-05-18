@@ -1,6 +1,6 @@
 ---
 name: gen-guidelines
-description: Generates customized coding guidelines for projects by analyzing existing code patterns OR setting up standards for new empty projects. Use when user asks to "generate guidelines", "create standards", "analyze patterns", "standardize code", "setup new project standards", or mentions "coding conventions". Supports Go, Python, and TypeScript/JavaScript projects with modular architecture templates (DDD/CQRS, Clean Architecture, layered, modular monolith, microservices-ready).
+description: Generates customized coding guidelines for projects by analyzing existing code patterns OR setting up standards for new empty projects. Use when user asks to "generate guidelines", "create standards", "analyze patterns", "standardize code", "setup new project standards", or mentions "coding conventions". Supports Go, Python, TypeScript/JavaScript (web), and React Native / Expo (mobile) projects with modular architecture templates (DDD/CQRS, Clean Architecture, layered, modular monolith, microservices-ready, file-based routing).
 context: fork
 agent: Plan
 ---
@@ -24,7 +24,7 @@ Analyze codebase patterns or setup new project standards, generating a customize
 - **ORMs**: SQLAlchemy, Django ORM, Tortoise, SQLModel
 - **Validation**: Pydantic, Marshmallow, dataclasses
 
-### TypeScript/JavaScript
+### TypeScript/JavaScript (Web)
 - **Frameworks**: Next.js (App Router), NestJS, Express, Hono
 - **UI Libraries**: React 19+
 - **State Management**: Zustand, Redux, MobX, Jotai
@@ -33,6 +33,23 @@ Analyze codebase patterns or setup new project standards, generating a customize
 - **ORMs**: TypeORM, Prisma, MikroORM, Drizzle
 - **Architectures**: Modular Layered, Clean Architecture, DDD/CQRS, Simple/Flat
 - **Patterns**: Component patterns, dependency injection, decorators, hooks, immutable state
+
+### TypeScript / React Native (Mobile)
+- **Framework**: React Native 0.7x+, Expo SDK 50+
+- **Routing**: Expo Router (file-based), React Navigation
+- **UI Primitives**: View/Text/Pressable, FlatList, Reanimated, Gesture Handler, Safe Area Context
+- **Styling**: Tamagui, NativeWind, StyleSheet
+- **State Management**: Zustand (+ MMKV persist adapter), Redux Toolkit
+- **Storage**: MMKV (non-sensitive), expo-secure-store (tokens/PII)
+- **Crypto**: react-native-quick-crypto (hot path), expo-crypto (one-shots)
+- **Forms / Validation**: React Hook Form + Zod
+- **Backend**: Convex (reactive, replaces ORM), REST/GraphQL + TanStack Query
+- **Auth**: WorkOS AuthKit, Clerk, Supabase Auth, custom (JWT + secure-store)
+- **Observability**: Sentry RN (`sentry-rn` module), PostHog RN (detection only, no module yet)
+- **Tooling**: Bun, Biome, Lefthook (detected and noted in conventions)
+
+### Cross-Stack Backend
+- **Convex**: Reactive backend that replaces ORM + REST controller layer. When detected, `backend-principles` rules collapse to Convex-specific patterns (queries / mutations / actions, validators, indices).
 
 ## Workflow Overview
 
@@ -66,15 +83,16 @@ Analyze codebase patterns or setup new project standards, generating a customize
 | Frontend | frontend-guidelines | React, Vue, Svelte, Angular |
 | Backend | backend-guidelines | Go, FastAPI, Express, Hono, NestJS API-only |
 | Full-stack | dev-guidelines | Next.js, NestJS with views, Django |
+| Mobile | mobile-guidelines | React Native (Expo or bare) |
 
 ## Manual Selection
 
 Both workflows ask user first:
 ```
-Guidelines type? 1. Auto-detect 2. Frontend 3. Backend 4. Full-stack
+Guidelines type? 1. Auto-detect 2. Frontend 3. Backend 4. Full-stack 5. Mobile
 ```
 
-If 2/3/4 selected → skip auto-detection, use user's choice.
+If 2/3/4/5 selected → skip auto-detection, use user's choice.
 
 ## Execution Steps
 

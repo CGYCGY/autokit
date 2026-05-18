@@ -8,6 +8,8 @@ conflicts: []
 
 # React Components Module
 
+**For React on web (DOM).** For React Native, load `react-native-components` instead — RN has different primitives (`View`/`Text` vs `div`/`span`), no `"use client"` directive, and different perf primitives (FlatList, Reanimated worklets). Both modules can coexist in a monorepo applied to their respective packages.
+
 ## Detection
 
 ```bash

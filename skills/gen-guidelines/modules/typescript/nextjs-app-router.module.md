@@ -3,7 +3,7 @@ module: nextjs-app-router
 language: typescript
 category: framework
 requires: [react-components]
-conflicts: [express, hono, nestjs]
+conflicts: [express, hono, nestjs, expo-router]
 ---
 
 # Next.js App Router Module
