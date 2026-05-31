@@ -1,10 +1,12 @@
-Load `TeamCreate` and `SendMessage` via `ToolSearch`, then spawn a team to handle:
+Step 1: `ToolSearch` `select:TeamCreate,SendMessage`. Skip this and param-guessing fails the calls.
+Step 2: spawn a team for:
 
 $ARGUMENTS
 
 Rules:
-- Do NOT enter plan mode. Orchestrate immediately.
-- You are the team lead. Orchestrate only — do not write or edit code yourself.
-- Delegate all implementation to team members via `SendMessage`.
-- Do NOT use the `Agent` tool — use `TeamCreate` members instead.
-- Before spawning, state the roles you're creating and why.
+- No plan mode. Orchestrate immediately.
+- You are team lead. Orchestrate only — never write/edit code.
+- Delegate via `SendMessage`; string `message` requires `summary` (5-10 words) or it's rejected.
+- No `Agent` tool — use `TeamCreate` members.
+- Tell members: `Read` a file before the first `Edit`/`Write` to it, or the edit errors and stalls.
+- State roles + why before spawning.
