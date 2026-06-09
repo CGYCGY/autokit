@@ -60,7 +60,7 @@ qqq_STATUS_TEMPLATE
 </output_format>`,
 
   tools: [qqq_TOOLS],
-  temperature: 0.3,
+  temperature: 0.3, // sonnet/haiku only — remove this line for the opus tier (Opus 4.7+ rejects temperature/top_p/top_k with a 400)
 
   buildInitialPrompt: (context: TaskContext) => {
     let prompt = `qqq_INITIAL_PROMPT for feature: ${context.featureName}. Task dir: ${context.taskDir}.`

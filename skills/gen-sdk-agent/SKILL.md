@@ -28,7 +28,7 @@ TIER_CONSTANTS: src/shared/tier-constants.ts
 - Agents are config objects (composition over inheritance), never class hierarchies
 - Default to `sonnet` model tier unless role clearly demands `opus` (planning) or `haiku` (simple reporting)
 - Always include `{skills}` placeholder in systemPrompt between `</variables>` and `<instructions>`
-- `temperature: 0.3` is standard for deterministic agents
+- `temperature: 0.3` is standard for deterministic agents on `sonnet`/`haiku` — OMIT `temperature` entirely for the `opus` tier (Opus 4.7+ rejects sampling params with a 400)
 - Output files go to `.tasks/<slug>/` directory
 - `buildInitialPrompt` is optional but recommended — keeps initial message OCP-compliant
 - For full AgentConfig interface, ModelTier, tool selection, and TaskContext fields: **Read** `reference/agent-config.md`

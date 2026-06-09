@@ -10,7 +10,7 @@ export interface AgentConfig {
   systemPrompt: string;      // XML-structured prompt
   tools: string[];           // available tools
   skillPatterns?: string[];  // glob patterns for skill loading
-  temperature?: number;      // 0.3 is standard
+  temperature?: number;      // 0.3 standard for sonnet/haiku; OMIT for opus (Opus 4.7+ rejects sampling params with 400)
   buildInitialPrompt?: (context: TaskContext) => string;
 }
 ```
@@ -19,7 +19,7 @@ export interface AgentConfig {
 
 ```typescript
 export const MODEL_TIERS = {
-  opus:   'claude-opus-4-7',
+  opus:   'claude-opus-4-8',
   sonnet: 'claude-sonnet-4-6',
   haiku:  'claude-haiku-4-5',
 } as const
