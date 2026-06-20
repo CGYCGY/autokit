@@ -48,7 +48,9 @@ grep -rn "StyleSheet\.create" --include="*.tsx" | grep -v node_modules
 | Colors | `$color`, `$background`, `$borderColor` — never raw hex |
 | Spacing | `$space.3` / `p="$3"` — never raw px |
 | Responsive | `$sm`, `$md` media tokens via `useMedia()` or `$gtSm` props |
-| Theme | Single top-level `Theme` — avoid per-component `<Theme name>` wrappers |
+| Theme | Wrap the app in a top-level `<Theme>` so tokens propagate — avoid extra per-component `<Theme name>` wrappers |
+| Longhand props | Rejected by default in Tamagui v2 — set `onlyAllowShorthands: false` in `createTamagui` to allow them |
+| Animation | Use the `transition` prop (Tamagui v2 renamed `animation` → `transition`) |
 
 ## Non-Obvious Anti-Patterns
 
@@ -70,7 +72,16 @@ const styles = StyleSheet.create({ box: { padding: 12 } })  // ❌
 export default function Screen() {
   return <Theme name="dark"><Body /></Theme>  // ❌ Re-creates theme tree
 }
-// Fix: set theme at root or via useThemeName toggle
+// Fix: set a single <Theme> at root or toggle via useThemeName
+// (a top-level <Theme> is still required for tokens to propagate at all)
+
+// Longhand style props without opting in (Tamagui v2 rejects them by default)
+<Stack paddingHorizontal="$3">  // ❌ Dropped unless onlyAllowShorthands: false
+<Stack px="$3">                 // ✅ Shorthand works out of the box
+
+// Old `animation` prop name (renamed to `transition` in Tamagui v2)
+<Stack animation="bouncy">    // ❌ No longer recognized
+<Stack transition="bouncy">   // ✅
 
 // Conditional styles via ternary (loses static analysis)
 <Stack p={isActive ? '$4' : '$2'}>  // ⚠ Works but unoptimized
@@ -126,11 +137,15 @@ export const CardTitle = styled(Text, {
 ```ts
 // tamagui.config.ts
 import { createTamagui } from 'tamagui'
-import { config as base } from '@tamagui/config/v4'
+import { config as base } from '@tamagui/config/v5'
 
 export const config = createTamagui({
   ...base,
   // tokens, themes, fonts...
+  settings: {
+    ...base.settings,
+    onlyAllowShorthands: false,  // Tamagui v2: allow longhand props (e.g. paddingHorizontal)
+  },
 })
 
 export default config
@@ -146,8 +161,10 @@ declare module 'tamagui' {
 - [ ] No `StyleSheet.create` (single styling source)
 - [ ] All `styled()` calls have a `name`
 - [ ] Conditional styling via `variants`, not ternaries
-- [ ] Theme set at root, not per-screen
+- [ ] A single top-level `<Theme>` set at root (required for token propagation), not per-screen
 - [ ] Spacing via `$space` tokens — no raw px
+- [ ] Animations use the `transition` prop (Tamagui v2), not `animation`
+- [ ] If longhand props are used, `onlyAllowShorthands: false` is set in `createTamagui`
 
 ## Progressive Loading
 

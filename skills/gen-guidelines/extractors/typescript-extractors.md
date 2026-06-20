@@ -249,8 +249,8 @@ grep -rB2 "Sentry\.init" --include="*.tsx" --include="*.ts" | head -20
 # Root wrap (RN-specific)
 grep -rn "Sentry\.wrap" --include="*.tsx"
 
-# Routing instrumentation (works for expo-router via reactNavigationIntegration)
-grep -rn "reactNavigationIntegration\|routingInstrumentation" --include="*.ts" --include="*.tsx"
+# Routing instrumentation (expo-router uses expoRouterIntegration; bare RN uses reactNavigationIntegration)
+grep -rn "expoRouterIntegration\|reactNavigationIntegration\|routingInstrumentation" --include="*.ts" --include="*.tsx"
 
 # Sourcemap upload config (Expo plugin + EAS env)
 grep "SENTRY_AUTH_TOKEN" eas.json .env* 2>/dev/null

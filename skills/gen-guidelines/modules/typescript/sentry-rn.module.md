@@ -17,7 +17,7 @@ RN/Expo-specific Sentry wiring: native modules, root wrap, expo-router routing, 
 ```bash
 grep "\"@sentry/react-native\":" package.json
 grep "@sentry/react-native/expo" app.json app.config.* 2>/dev/null
-grep -rn "Sentry\.wrap\|reactNavigationIntegration" --include="*.tsx" | head -3
+grep -rn "Sentry\.wrap\|expoRouterIntegration\|reactNavigationIntegration" --include="*.tsx" | head -3
 ```
 
 ## Pattern Extraction Commands
@@ -27,7 +27,7 @@ grep -rn "Sentry\.wrap\|reactNavigationIntegration" --include="*.tsx" | head -3
 grep -rB2 "Sentry\.init" --include="*.tsx" --include="*.ts" | head -20
 
 # Routing instrumentation
-grep -rn "reactNavigationIntegration\|routingInstrumentation" --include="*.ts" --include="*.tsx"
+grep -rn "expoRouterIntegration\|reactNavigationIntegration\|routingInstrumentation" --include="*.ts" --include="*.tsx"
 
 # Root wrap
 grep -rn "Sentry\.wrap\|export default Sentry\.wrap" --include="*.tsx"
@@ -47,7 +47,7 @@ grep -rn "enableNativeFramesTracking" --include="*.ts" --include="*.tsx"
 | DSN env var | `process.env.EXPO_PUBLIC_SENTRY_DSN` (`EXPO_PUBLIC_` prefix required for client access) |
 | Init location | Top of root entry (`app/_layout.tsx`), at module scope — before component declarations |
 | Root wrap | `export default Sentry.wrap(RootLayout)` |
-| Routing instrumentation | `Sentry.reactNavigationIntegration()` (works for both react-navigation and expo-router) |
+| Routing instrumentation | expo-router: `Sentry.expoRouterIntegration()` (auto-registers expo-router's nav ref). Bare React Navigation: `Sentry.reactNavigationIntegration()` |
 | Native frames | `enableNativeFramesTracking: !__DEV__` |
 | Sourcemaps | `@sentry/react-native/expo` plugin in `app.config` + `SENTRY_AUTH_TOKEN` in EAS env |
 | Build target | Dev Client or production build — **not Expo Go** (Sentry needs native modules) |
@@ -83,9 +83,10 @@ RNRestart.restart()                                          // ❌ Events may n
 await Sentry.flush(2000); await signOut(); RNRestart.restart()  // ✅
 
 // Routing instrumentation outside init() (no-op)
-const routingInstrumentation = Sentry.reactNavigationIntegration()  // declared but unused  ❌
+const routingInstrumentation = Sentry.expoRouterIntegration()  // declared but unused  ❌
 Sentry.init({
-  integrations: [Sentry.reactNavigationIntegration({ enableTimeToInitialDisplay: true })],  // ✅
+  integrations: [Sentry.expoRouterIntegration({ enableTimeToInitialDisplay: true })],  // ✅ expo-router
+  // bare React Navigation projects: Sentry.reactNavigationIntegration() instead
 })
 
 // EXPO_PUBLIC_ prefix missing on DSN env (key undefined at runtime, silent no-op)
@@ -105,7 +106,9 @@ Sentry.init({
   tracesSampleRate: __DEV__ ? 1.0 : 0.1,
   enableNativeFramesTracking: !__DEV__,
   integrations: [
-    Sentry.reactNavigationIntegration({ enableTimeToInitialDisplay: true }),
+    // expo-router: auto-registers the navigation ref, no manual wiring needed
+    Sentry.expoRouterIntegration({ enableTimeToInitialDisplay: true }),
+    // bare React Navigation projects: Sentry.reactNavigationIntegration(navigationRef) instead
   ],
   beforeSend(event) {
     if (event.user) {
@@ -153,7 +156,7 @@ Run once: `eas secret:create --name SENTRY_AUTH_TOKEN --value $TOKEN`.
 
 - [ ] `Sentry.init` at top level of root entry, not inside a hook or component body
 - [ ] Root layout exported via `Sentry.wrap(...)`
-- [ ] `Sentry.reactNavigationIntegration()` listed in `integrations`
+- [ ] Routing integration in `integrations` — `Sentry.expoRouterIntegration()` for expo-router (or `reactNavigationIntegration()` for bare React Navigation)
 - [ ] `enableNativeFramesTracking` gated on `!__DEV__`
 - [ ] `@sentry/react-native/expo` listed in `app.config` plugins
 - [ ] `SENTRY_AUTH_TOKEN` set in EAS env for sourcemap upload

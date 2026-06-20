@@ -104,27 +104,27 @@ const u = JSON.parse(storage.getString('user') ?? '{}')
 
 // Re-creating MMKV instance per call (cheap but wasteful)
 function read() {
-  const s = new MMKV()  // ❌ New instance each read
+  const s = createMMKV()  // ❌ New instance each read
   return s.getString('x')
 }
 // Fix: module-level singleton
-export const storage = new MMKV()
+export const storage = createMMKV()
 ```
 
 ## MMKV Setup
 
 ```ts
-// lib/storage.ts — react-native-mmkv v3 syntax (most current projects)
-import { MMKV } from 'react-native-mmkv'
+// lib/storage.ts — react-native-mmkv v4 (current). Requires react-native-nitro-modules.
+import { createMMKV } from 'react-native-mmkv'
 
-export const storage = new MMKV()
-export const secureStorage = new MMKV({
+export const storage = createMMKV()
+export const secureStorage = createMMKV({
   id: 'secure',
   encryptionKey: 'derived-at-runtime-from-keychain',  // not literal
 })
 
-// v4 changed the API: `createMMKV()` instead of `new MMKV()`, `.remove()` instead of `.delete()`.
-// If upgrading: import { createMMKV } from 'react-native-mmkv'; export const storage = createMMKV()
+// Delete a key with `.remove(key)` (v4), not `.delete(key)`.
+// v3 used `new MMKV()` + `.delete()`; older projects on v3 keep that syntax.
 ```
 
 ## SecureStore Wrapper (web-safe)
@@ -167,7 +167,7 @@ import { storage } from '@/lib/storage'
 const mmkvStorage: StateStorage = {
   setItem: (name, value) => storage.set(name, value),
   getItem: (name) => storage.getString(name) ?? null,
-  removeItem: (name) => storage.delete(name),
+  removeItem: (name) => storage.remove(name),  // v4: .remove() (v3 was .delete())
 }
 
 export const useAppStore = create<AppState>()(
