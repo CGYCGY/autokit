@@ -71,41 +71,13 @@ Called by other workflows rather than selected directly from the `USER_PROMPT`.
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Plan: {{PLAN_TITLE}}</title>
 <style>
-  /* Identity tokens — the single source of the per-plan theme. Pick values that fit the
-     USER_PROMPT's domain; every generated image must match these tokens. */
-  :root {
-    --bg: {{BG_HEX}};
-    --surface: {{SURFACE_HEX}};
-    --ink: {{INK_HEX}};
-    --muted: {{MUTED_HEX}};
-    --accent: {{ACCENT_HEX}};
-    --font-body: {{BODY_FONT_STACK}};
-    --font-mono: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--font-body); }
-  main { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-  h1, h2, h3, h4 { line-height: 1.25; }
-  h2 { border-bottom: 2px solid var(--accent); padding-bottom: .3rem; margin-top: 2.5rem; }
-  code { font-family: var(--font-mono); font-size: .9em; background: var(--surface); padding: .1em .35em; border-radius: 4px; }
-  figure { margin: 1.5rem auto; text-align: center; }
-  figure img { max-width: 100%; border-radius: 8px; }
-  figcaption { color: var(--muted); font-size: .85rem; margin-top: .5rem; }
-  .meta dl { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
-  .meta dt { color: var(--muted); }
-  .meta dd { margin: 0; overflow-wrap: anywhere; }
-  .tag { font-size: .7rem; font-weight: 700; text-transform: uppercase; padding: .15em .5em; border-radius: 999px; }
-  .tag.existing { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); }
-  .tag.new { background: var(--accent); color: var(--bg); }
-  .phase { background: var(--surface); border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); border-radius: 10px; padding: 1rem 1.25rem; margin: 1.5rem 0; }
-  ul.checklist { list-style: none; padding-left: 0; }
-  ul.checklist li { margin: .35rem 0; }
-  code.status { color: var(--accent); font-weight: 700; }
-  .loop { background: color-mix(in srgb, var(--accent) 10%, transparent); border-left: 4px solid var(--accent); padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin-top: 1rem; }
-  details { margin: .5rem 0; }
-  summary { cursor: pointer; font-weight: 600; }
-  .qa-answer { margin-left: 1rem; color: var(--muted); }
-  /* Extend below for plan-specific styling (tables, callouts, bespoke Notes HTML). */
+  {{STYLE: author the full stylesheet here — free rein on the design. Requirements:
+    define the identity tokens in :root (--bg, --surface, --ink, --muted, --accent,
+    --font-body, --font-mono) and derive all colors/fonts from them, since the
+    generated images must sync to these exact values; style every class used in the
+    body (.meta, .tag existing/new, .phase, .checklist, .status, .loop, .qa-answer);
+    center figures and cap images at max-width 100%; professional, focused, minimal,
+    themed to the USER_PROMPT's domain.}}
 </style>
 </head>
 <body>
